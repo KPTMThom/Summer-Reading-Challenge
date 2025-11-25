@@ -49,8 +49,7 @@
   <form id="signupForm">
     <input type="text" id="user_name" placeholder="Username" required><br>
     <input type="password" id="password" placeholder="Password" required><br>
-    <input type="email" id="email_address" placeholder="Email (optional)"><br>
-    <input type="text" id="phone_number" placeholder="Phone number (optional)"><br>
+    <input type="email" id="email_address" placeholder="Email (Required)"><br>
     <button type="submit">Sign Up</button>
   </form>
 
@@ -69,11 +68,10 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
   const user_name = document.getElementById('user_name').value.trim();
   const password = document.getElementById('password').value.trim();
   const email = document.getElementById('email_address').value.trim() || null;
-  const phone = document.getElementById('phone_number').value.trim() || null;
   const message = document.getElementById('message');
 
-  if (!email && !phone) {
-    message.textContent = "You must provide an email or phone number.";
+  if (!email) {
+    message.textContent = "You must provide an email address.";
     return;
   }
 
@@ -100,7 +98,6 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
   // 🟢 Create user via Supabase auth (no need to store user_name in metadata)
   const { data, error: signupError } = await supabase.auth.signUp({
     email,
-    phone,
     password,
   });
 
@@ -123,7 +120,7 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
     return;
   }
 
-  message.textContent = "Signup successful! Please check your email/phone to confirm.";
+  message.textContent = "Signup successful! Redirecting to login.";
 
   // Redirect to login page after a short delay
   setTimeout(() => {
@@ -134,5 +131,6 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
 
 </body>
 </html>
+
 
 
