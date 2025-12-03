@@ -417,10 +417,10 @@ function renderBingoBoard(challenges) {
 
   challenges.forEach((item, index) => {
     const cell = document.createElement("div");
-    cell.id = `bingo-cell-${index}`; // Add ID for easy finding later
+    cell.id = `bingo-cell-${index}`;
     const span = document.createElement("span");
-    
-    // Use the new short title generator
+
+    // Short title
     span.textContent = getShortBingoTitle(item.challenge);
     cell.appendChild(span);
 
@@ -429,11 +429,18 @@ function renderBingoBoard(challenges) {
 
     if (userBingoState[row][col]) cell.classList.add("completed");
 
-    // Open Modal on click instead of immediately processing
+    // OPEN modal on click
     cell.addEventListener("click", () => openBingoModal(index));
+
     board.appendChild(cell);
   });
+
+  autoFitAllBingoText();
 }
+
+// Hook the modal confirm button
+document.getElementById('modalConfirmBtn').addEventListener('click', processBingoAction);
+
 
 // --- Modal Functions ---
 
