@@ -360,61 +360,193 @@ function toNZDateString(dateInput) {
 
   /* ========= BINGO LOGIC (ONLY UPDATED WHERE USERNAME → UUID) ========= */
   const BINGO_SIZE = 5;
-  let bingoData = [];
-  let userBingoState = Array(BINGO_SIZE).fill(null).map(() => Array(BINGO_SIZE).fill(false));
-  let 
+let bingoData = [];
+let userBingoState = Array(BINGO_SIZE).fill(null).map(() => Array(BINGO_SIZE).fill(false));
+let BINGO_WIN_BONUS = 20;
+let currentBingoIndex = null; // Tracks which bingo square is currently opened in modal
 
- BINGO_WIN_BONUS = 20;
+// Helper to create short 1-2 word titles from long descriptions
+// YOU MAY NEED TO ADJUST THESE KEYWORDS BASED ON YOUR DATABASE CONTENT
+function getShortBingoTitle(description) {
+    const text = description.toLowerCase();
+    if (text.includes("comic") || text.includes("graphic")) return "Comic Book";
+    if (text.includes("mystery")) return "Mystery";
+    if (text.includes("fantasy")) return "Fantasy";
+    if (text.includes("sci-fi") || text.includes("science fiction")) return "Sci-Fi";
+    if (text.includes("non-fiction") || text.includes("fact")) return "Non-Fiction";
+    if (text.includes("animal")) return "Animal Book";
+    if (text.includes("friend")) return "Read to Friend";
+    if (text.includes("outside")) return "Read Outside";
+    if (text.includes("bed")) return "Read in Bed";
+    if (text.includes("series")) return "Start Series";
+    if (text.includes("new author")) return "New Author";
+    if (text.includes("blue cover")) return "Blue Cover";
+    if (text.includes("red cover")) return "Red Cover";
+    if (text.includes("minutes")) return "Read 20 Mins";
+    // Fallback: grab first two words if no keywords match
+    const words = description.split(" ");
+    return words.slice(0, 2).join(" ");
+}
 
-  async function getBingoData() {
-    const { data, error } = await supabase.from("bingochallenges").select("*");
-    if (error) throw error;
-    return data;
-  }
 
-  /* UPDATED — fetch by UUID */
-  async function getUserBingoState(userId) {
-    const { data, error } = await supabase
-      .from("user_bingo_state")
-      .select("*")
-      .eq("UUID", userId);
+async function getBingoData() {
+  const { data, error } = await supabase.from("bingochallenges").select("*");
+  if (error) throw error;
+  return data;
+}
 
-    if (error) throw error;
-
-    const state = Array(BINGO_SIZE).fill(null).map(() => Array(BINGO_SIZE).fill(false));
-
-    if (data) {
-      data.forEach(row => {
-        const r = Math.floor(row.bingo_index / BINGO_SIZE);
-        const c = row.bingo_index % BINGO_SIZE;
-        state[r][c] = row.completed;
-      });
-    }
-
-    return state;
-  }
-
-  function renderBingoBoard(challenges) {
-    const board = document.getElementById("bingoBoard");
-    board.innerHTML = "";
-    bingoData = challenges;
-
-    challenges.forEach((item, index) => {
-      const cell = document.createElement("div");
-      const span = document.createElement("span");
-      span.textContent = item.challenge;
-      cell.appendChild(span);
-      requestAnimationFrame(() => autoFitText(span));
-
-      const row = Math.floor(index / BINGO_SIZE);
-      const col = index % BINGO_SIZE;
-
-      if (userBingoState[row][col]) cell.classList.add("completed");
-
-      cell.addEventListener("click", () => handleBingoClick(index, cell));
-      board.appendChild(cell);
+async function getUserBingoState(userId) {
+  const { data, error } = await supabase.from("user_bingo_state").select("*").eq("user_id", userId);
+  if (error) throw error;
+  
+  const state = Array(BINGO_SIZE).fill(null).map(() => Array(BINGO_SIZE).fill(false));
+  if (data) {
+    data.forEach(row => {
+      const r = Math.floor(row.bingo_index / BINGO_SIZE);
+      const c = row.bingo_index % BINGO_SIZE;
+      state[r][c] = row.completed;
     });
   }
+  return state;
+}
+
+function renderBingoBoard(challenges) {
+  const board = document.getElementById("bingoBoard");
+  board.innerHTML = "";
+  bingoData = challenges;
+
+  challenges.forEach((item, index) => {
+    const cell = document.createElement("div");
+    cell.id = `bingo-cell-${index}`; // Add ID for easy finding later
+    const span = document.createElement("span");
+    
+    // Use the new short title generator
+    span.textContent = getShortBingoTitle(item.challenge);
+    cell.appendChild(span);
+
+    const row = Math.floor(index / BINGO_SIZE);
+    const col = index % BINGO_SIZE;
+
+    if (userBingoState[row][col]) cell.classList.add("completed");
+
+    // Open Modal on click instead of immediately processing
+    cell.addEventListener("click", () => openBingoModal(index));
+    board.appendChild(cell);
+  });
+}
+
+// --- Modal Functions ---
+
+function openBingoModal(index) {
+    currentBingoIndex = index;
+    const challenge = bingoData[index];
+    const row = Math.floor(index / BINGO_SIZE);
+    const col = index % BINGO_SIZE;
+    const isCompleted = userBingoState[row][col];
+
+    const modal = document.getElementById('bingoModal');
+    const title = document.getElementById('modalTitle');
+    const desc = document.getElementById('modalDescription');
+    const confirmBtn = document.getElementById('modalConfirmBtn');
+
+    // Set modal content based on state
+    if (isCompleted) {
+        title.textContent = "Completed Challenge!";
+        desc.textContent = `You have already completed: "${challenge.challenge}". Do you want to unmark it?`;
+        confirmBtn.textContent = "Unmark Challenge ↩️";
+        confirmBtn.classList.remove('btn-primary');
+        confirmBtn.classList.add('btn-secondary'); // Use secondary color for unmarking
+    } else {
+        title.textContent = getShortBingoTitle(challenge.challenge);
+        desc.textContent = challenge.challenge; // Show full description here
+        desc.innerHTML += `<br><br><strong>Bonus: +${challenge.bonus_minutes} mins</strong>`;
+        confirmBtn.textContent = "I Did It! ✅";
+        confirmBtn.classList.remove('btn-secondary');
+        confirmBtn.classList.add('btn-primary');
+    }
+    
+    modal.classList.remove('hidden');
+}
+
+function closeBingoModal() {
+    document.getElementById('bingoModal').classList.add('hidden');
+    currentBingoIndex = null;
+}
+
+// Called when "I Did It" or "Unmark" is clicked in modal
+async function processBingoAction() {
+    if (currentBingoIndex === null) return;
+    
+    const index = currentBingoIndex;
+    closeBingoModal(); // Close modal first
+
+    const cell = document.getElementById(`bingo-cell-${index}`);
+    const row = Math.floor(index / BINGO_SIZE);
+    const col = index % BINGO_SIZE;
+    const bonus = bingoData[index].bonus_minutes;
+    const challengeName = bingoData[index].challenge;
+
+    const prevState = JSON.parse(JSON.stringify(userBingoState));
+    const wasCompleted = userBingoState[row][col];
+    const newCompleted = !wasCompleted;
+
+    // Optimistic UI update
+    userBingoState[row][col] = newCompleted;
+    cell.classList.toggle("completed", newCompleted);
+
+    const hadBingoBefore = checkAnyBingo(prevState);
+    const hasBingoAfter = checkAnyBingo(userBingoState);
+
+    if (!hadBingoBefore && hasBingoAfter) launchConfetti();
+
+    try {
+        // Database updates (same as before)
+        const { data: existing } = await supabase
+        .from("user_bingo_state")
+        .select("*")
+        .eq("user_id", currentUser.id)
+        .eq("bingo_index", index)
+        .limit(1);
+
+        if (existing && existing.length > 0) {
+        await supabase
+            .from("user_bingo_state")
+            .update({
+            completed: newCompleted,
+            completed_at: newCompleted ? new Date().toISOString() : null
+            })
+            .eq("user_id", currentUser.id)
+            .eq("bingo_index", index);
+        } else {
+        await supabase.from("user_bingo_state").insert([{
+            user_id: currentUser.id,
+            bingo_index: index,
+            completed: true,
+            completed_at: new Date().toISOString()
+        }]);
+        }
+
+        await logReadingMinutes(
+        currentUser,
+        newCompleted ? bonus : -bonus,
+        `${newCompleted ? "Bingo" : "Unmark Bingo"}: ${challengeName}`
+        );
+
+        if (!hadBingoBefore && hasBingoAfter) {
+        await logReadingMinutes(currentUser, BINGO_WIN_BONUS, "Bingo Board Win");
+        }
+        if (hadBingoBefore && !hasBingoAfter) {
+        await logReadingMinutes(currentUser, -BINGO_WIN_BONUS, "Bingo Board Win Reverted");
+        }
+
+    } catch (err) {
+        console.error(err);
+        // Revert UI if error
+        userBingoState[row][col] = wasCompleted;
+        cell.classList.toggle("completed", wasCompleted);
+        alert("Error saving bingo state. Please try again.");
+    }
+}
 
   function checkAnyBingo(state) {
     for (let r = 0; r < BINGO_SIZE; r++)
