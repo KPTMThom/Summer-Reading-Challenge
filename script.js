@@ -396,7 +396,7 @@ async function getBingoData() {
 }
 
 async function getUserBingoState(userId) {
-  const { data, error } = await supabase.from("user_bingo_state").select("*").eq("user_id", userId);
+  const { data, error } = await supabase.from("user_bingo_state").select("*").eq("UUID", userId);
   if (error) throw error;
   
   const state = Array(BINGO_SIZE).fill(null).map(() => Array(BINGO_SIZE).fill(false));
@@ -504,7 +504,7 @@ async function processBingoAction() {
         const { data: existing } = await supabase
         .from("user_bingo_state")
         .select("*")
-        .eq("user_id", currentUser.id)
+        .eq("UUID", currentUser.UUID)
         .eq("bingo_index", index)
         .limit(1);
 
@@ -515,11 +515,11 @@ async function processBingoAction() {
             completed: newCompleted,
             completed_at: newCompleted ? new Date().toISOString() : null
             })
-            .eq("user_id", currentUser.id)
+            .eq("UUID", currentUser.UUID)
             .eq("bingo_index", index);
         } else {
         await supabase.from("user_bingo_state").insert([{
-            user_id: currentUser.id,
+            UUID: currentUser.UUID,
             bingo_index: index,
             completed: true,
             completed_at: new Date().toISOString()
