@@ -440,6 +440,10 @@ function renderBingoBoard(challenges) {
 
 // Hook the modal confirm button
 document.getElementById('modalConfirmBtn').addEventListener('click', processBingoAction);
+document.getElementById('modalCancelBtn').addEventListener('click', () => {
+    closeBingoModal();
+});
+
 
 
 // --- Modal Functions ---
