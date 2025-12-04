@@ -3,23 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Library Reading Challenge</title>
+  <title>Summer Reading Challenge</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+
   <header>
     <div class="header-content">
-      <h1>📚 Reading Challenge</h1>
+      <h1>☀️ Summer Reader</h1>
       <div id="profileIcon" class="profile">
         <span id="profileInitial">U</span>
         <div id="profileDropdown" class="dropdown">
-          <button id="logoutBtn">Logout <span>→</span></button>
+          <button id="logoutBtn">Logout</button>
         </div>
       </div>
     </div>
@@ -27,69 +28,71 @@
 
   <main class="dashboard-grid">
     
-    <section id="welcomeSection" class="card welcome-card">
-      <div class="card-header">
-        <h2 id="welcomeMessage">Welcome back!</h2>
+    <section id="welcomeSection" class="card area-welcome">
+      <div class="welcome-text">
+        <h2 id="welcomeMessage">Hello, Reader!</h2>
+        <p class="subtitle">Ready to catch some rays & read?</p>
       </div>
-      <div class="streak-box">
-        <div class="streak-content">
-          <h3>🔥 Streak</h3>
-          <p id="readingStreakDisplay">0 Days</p>
-        </div>
-        <div class="streak-content">
-           <h3>⭐ Best</h3>
-           <p id="dailyHighScoreDisplay">0 Days</p>
+      <div class="streak-badge">
+        <span class="fire-icon">🔥</span>
+        <div>
+           <span id="readingStreakDisplay" class="streak-num">0</span>
+           <span class="streak-label">Day Streak</span>
         </div>
       </div>
     </section>
 
-    <section id="communitySection" class="card full-width">
-      <div class="card-header-row">
+    <section id="userMinutesSection" class="card area-stats">
+      <div class="stat-icon">📚</div>
+      <div class="big-number" id="userMinutes">0</div>
+      <p class="stat-label">Total Minutes</p>
+    </section>
+
+    <section id="logMinutesSection" class="card area-log highlight-card">
+      <div class="card-header">
+        <h3>⏱️ Log Time</h3>
+      </div>
+      
+      <div class="input-group">
+        <input id="bookTitleInput" type="text" placeholder="Book Title..." />
+        <input id="minutesInput" type="number" placeholder="Mins" min="1" max="120" />
+      </div>
+      
+      <button id="logMinutesBtn" class="btn btn-primary">Save Session</button>
+      <p id="logMessage" class="error-msg"></p>
+
+      <div class="divider"></div>
+
+      <div class="stopwatch-area">
+        <p class="stopwatch-label">Reading Timer</p>
+        <div class="timer-display">
+          <span id="stopwatchDisplay" class="digital-clock">00:00</span>
+        </div>
+        <button id="stopwatchBtn" class="btn btn-secondary">Start Timer</button>
+      </div>
+    </section>
+
+    <section id="communitySection" class="card area-community">
+      <div class="community-header">
         <h3>🌍 Community Goal</h3>
-        <span id="progressText" class="progress-badge">Loading...</span>
+        <span id="progressText" class="pill-badge">Loading...</span>
       </div>
       <div id="communityProgressBar" class="progress-container">
         <div id="progressFill" class="progress-bar"></div>
       </div>
     </section>
 
-    <section id="logMinutesSection" class="card action-card">
-      <h3>⏱️ Log Activity</h3>
-      <div class="input-group">
-        <input id="bookTitleInput" type="text" placeholder="What are you reading?" />
-        <input id="minutesInput" type="number" placeholder="Minutes" min="1" max="120" />
-      </div>
-      
-      <div class="button-group">
-        <button id="logMinutesBtn" class="btn btn-primary">Log Session</button>
-      </div>
-      <p id="logMessage" class="error-msg"></p>
-
-      <div class="stopwatch-area">
-        <div class="timer-display">
-          <span id="stopwatchDisplay" class="digital-clock">00:00</span>
-        </div>
-        <button id="stopwatchBtn" class="btn btn-outline-timer">Start Timer</button>
-      </div>
-    </section>
-
-    <section id="userMinutesSection" class="card stat-card">
-      <h3>Total Time</h3>
-      <div class="big-number" id="userMinutes">0</div>
-      <p class="stat-label">Minutes Read</p>
-    </section>
-
-    <section id="leaderboardSection" class="card leaderboard-card">
-      <h3>🏆 Top Readers</h3>
-      <div id="leaderboardContainer" class="leaderboard-list"></div>
-    </section>
-
-    <section id="bingoSection" class="card full-width bingo-card">
+    <section id="bingoSection" class="card area-bingo">
       <div class="card-header-row">
-        <h3>☀️ Summer Bingo</h3>
-        <span class="sub-label">Tap a square to complete</span>
+        <h3>🏖️ Bingo</h3>
+        <span class="tiny-note">Tap to complete</span>
       </div>
       <div id="bingoBoard"></div>
+    </section>
+
+    <section id="leaderboardSection" class="card area-leaderboard">
+      <h3>🏆 Top Readers</h3>
+      <div id="leaderboardContainer" class="leaderboard-list"></div>
     </section>
 
   </main>
@@ -97,9 +100,9 @@
   <div id="bingoModal" class="modal-overlay hidden">
     <div class="modal-content">
       <h3 id="modalTitle">Challenge</h3>
-      <p id="modalDescription">Description goes here.</p>
+      <p id="modalDescription">Description.</p>
       <div class="modal-actions">
-        <button id="modalCancelBtn" class="btn btn-text">Cancel</button>
+        <button id="modalCancelBtn" class="btn btn-outline">Cancel</button>
         <button id="modalConfirmBtn" class="btn btn-primary">Complete ✅</button>
       </div>
     </div>
@@ -109,4 +112,3 @@
   <script src="script.js"></script>
 </body>
 </html>
-
