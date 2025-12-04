@@ -253,12 +253,12 @@ input:focus { border-color: var(--brand-bright-blue); }
   overflow: hidden; max-width: 100%; pointer-events: none;
 }
 
-/* --- LEADERBOARD (FIXED) --- */
+/* --- LEADERBOARD (FIXED SCROLLING) --- */
 .area-leaderboard {
-  /* Use 100% height to match the Bingo card in the same Grid row */
-  height: 100%; 
   display: flex;
   flex-direction: column;
+  /* We allow the card to be naturally sized, 
+     but the list inside will hit a limit */
 }
 
 .leaderboard-list {
@@ -266,14 +266,16 @@ input:focus { border-color: var(--brand-bright-blue); }
   flex-direction: column;
   gap: 8px;
   
-  /* Flex 1 pushes the list to fill all available vertical space */
-  flex: 1;           
-  overflow-y: auto;  
-  min-height: 0; /* Critical for Flexbox scroll to work properly */
-  padding-right: 6px;
+  /* THE FIX: Rigid height limit */
+  /* This creates a window big enough for about 8 people.
+     Anything more triggers the scrollbar. */
+  max-height: 450px; 
+  overflow-y: auto;
+  
+  padding-right: 6px; /* Space so scrollbar doesn't overlap text */
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar Styling */
 .leaderboard-list::-webkit-scrollbar { width: 6px; }
 .leaderboard-list::-webkit-scrollbar-track { background: transparent; }
 .leaderboard-list::-webkit-scrollbar-thumb {
@@ -285,7 +287,7 @@ input:focus { border-color: var(--brand-bright-blue); }
 .leaderboard-bar { 
   display: flex; align-items: center; padding: 10px; 
   background: #f8fafc; border-radius: 10px; border: 1px solid transparent;
-  flex-shrink: 0; /* Ensures items don't get squashed */
+  flex-shrink: 0; 
 }
 .leaderboard-bar:hover { border-color: #e2e8f0; background: white; }
 
