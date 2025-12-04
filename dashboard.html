@@ -4,11 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Summer Reading Challenge</title>
-  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -28,69 +26,58 @@
 
   <main class="dashboard-grid">
     
-    <section id="welcomeSection" class="card area-welcome">
+    <section id="welcomeSection" class="card area-welcome accent-blue">
       <div class="welcome-text">
-        <h2 id="welcomeMessage">Hello, Reader!</h2>
-        <p class="subtitle">Ready to catch some rays & read?</p>
+        <h2 id="welcomeMessage">Hello!</h2>
+        <p class="subtitle">Let's read some books.</p>
       </div>
       <div class="streak-badge">
-        <span class="fire-icon">🔥</span>
-        <div>
-           <span id="readingStreakDisplay" class="streak-num">0</span>
-           <span class="streak-label">Day Streak</span>
-        </div>
+        <div id="readingStreakDisplay" class="streak-num">0</div>
+        <div class="streak-lbl">Days Fire</div>
       </div>
     </section>
 
-    <section id="userMinutesSection" class="card area-stats">
+    <section id="userMinutesSection" class="card area-stats accent-yellow">
       <div class="stat-icon">📚</div>
       <div class="big-number" id="userMinutes">0</div>
       <p class="stat-label">Total Minutes</p>
     </section>
 
-    <section id="logMinutesSection" class="card area-log highlight-card">
+    <section id="logMinutesSection" class="card area-log accent-orange">
       <div class="card-header">
         <h3>⏱️ Log Time</h3>
       </div>
-      
       <div class="input-group">
         <input id="bookTitleInput" type="text" placeholder="Book Title..." />
         <input id="minutesInput" type="number" placeholder="Mins" min="1" max="120" />
       </div>
-      
       <button id="logMinutesBtn" class="btn btn-primary">Save Session</button>
       <p id="logMessage" class="error-msg"></p>
-
-      <div class="divider"></div>
-
       <div class="stopwatch-area">
-        <p class="stopwatch-label">Reading Timer</p>
-        <div class="timer-display">
-          <span id="stopwatchDisplay" class="digital-clock">00:00</span>
-        </div>
+        <span id="stopwatchDisplay" class="digital-clock">00:00</span>
         <button id="stopwatchBtn" class="btn btn-secondary">Start Timer</button>
       </div>
     </section>
 
-    <section id="communitySection" class="card area-community">
+    <section id="communitySection" class="card area-community accent-teal">
       <div class="community-header">
         <h3>🌍 Community Goal</h3>
-        <span id="progressText" class="pill-badge">Loading...</span>
+        <span id="progressText" style="font-weight:700; font-size:0.9rem;">Loading...</span>
       </div>
       <div id="communityProgressBar" class="progress-container">
         <div id="progressFill" class="progress-bar"></div>
       </div>
     </section>
 
-    <section id="bingoSection" class="card area-bingo">
+    <section id="bingoSection" class="card area-bingo accent-olive">
       <div class="card-header-row">
         <h3>🏖️ Bingo</h3>
-        <span class="tiny-note">Tap to complete</span>
+        <span class="tiny-note">Tap for info</span>
       </div>
       <div id="bingoBoard"></div>
     </section>
 
-    <section id="leaderboardSection" class="card area-leaderboard">
+    <section id="leaderboardSection" class="card area-leaderboard accent-dark">
       <h3>🏆 Top Readers</h3>
       <div id="leaderboardContainer" class="leaderboard-list"></div>
     </section>
@@ -102,7 +89,7 @@
       <h3 id="modalTitle">Challenge</h3>
       <p id="modalDescription">Description.</p>
       <div class="modal-actions">
-        <button id="modalCancelBtn" class="btn btn-outline">Cancel</button>
+        <button id="modalCancelBtn" class="btn btn-secondary">Cancel</button>
         <button id="modalConfirmBtn" class="btn btn-primary">Complete ✅</button>
       </div>
     </div>
