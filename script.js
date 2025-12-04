@@ -509,11 +509,6 @@ async function processBingoAction() {
   }
 
   /* ========= EVENT HANDLERS ========= */
-  document.getElementById('profileIcon').addEventListener('click', e => {
-    e.stopPropagation();
-    const dropdown = document.getElementById('profileDropdown');
-    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-  });
 
   document.getElementById('logMinutesBtn').addEventListener('click', async () => {
     const minutes = parseInt(document.getElementById('minutesInput').value);
