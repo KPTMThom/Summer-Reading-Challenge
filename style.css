@@ -269,7 +269,7 @@ input:focus { border-color: var(--brand-bright-blue); }
   /* THE FIX: Rigid height limit */
   /* This creates a window big enough for about 8 people.
      Anything more triggers the scrollbar. */
-  max-height: 450px; 
+  max-height: 350px; 
   overflow-y: auto;
   
   padding-right: 6px; /* Space so scrollbar doesn't overlap text */
