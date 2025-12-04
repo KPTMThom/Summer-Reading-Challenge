@@ -1,4 +1,4 @@
-  /* ========= CONFIG ========= */
+/* ========= CONFIG ========= */
   const SUPABASE_URL = 'https://hfugnpqguidgosxyuioj.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhmdWducHFndWlkZ29zeHl1aW9qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0NjE3ODAsImV4cCI6MjA3ODAzNzc4MH0.eawP-KaZTXOAE_OSYeJR6Ds_c6aKsqOsXo_EGifgtrU';
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -16,9 +16,7 @@
     return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   }
 
-  /* ========= SUPABASE HELPERS (UPDATED FOR UUID) ========= */
-
-  /* NEW — fetch userdetails by UUID instead of username */
+  /* ========= SUPABASE HELPERS ========= */
   async function getUserDataById(uuid) {
     const { data, error } = await supabase
       .from('Userdetails')
@@ -29,14 +27,12 @@
     return data;
   }
 
-  /* UPDATED — get logs filtered by UUID instead of username */
   async function getUserLogsById(userId) {
     const { data, error } = await supabase
       .from('loghistory')
       .select('minutes_logged, time_logged')
       .eq('UUID', userId)
       .order("time_logged", { ascending: false });
-
     if (error) throw error;
     return data;
   }
@@ -53,10 +49,9 @@
     return data;
   }
 
-  /* UPDATED — logMinutes now stores UUID */
   async function logReadingMinutes(user, minutes, bookTitle) {
     const { error } = await supabase.from('loghistory').insert([{
-      UUID: user.UUID,               // NEW
+      UUID: user.UUID,
       minutes_logged: minutes,
       book_title: bookTitle,
       time_logged: new Date().toISOString()
@@ -65,65 +60,49 @@
     if (error) throw error;
   }
 
-    /* ========= USERNAME PROMPT IF MISSING ========= */
+    /* ========= USERNAME PROMPT ========= */
 async function ensureUsername() {
   if (!currentUser) return;
-
-  // If username already exists → skip
   if (currentUser.user_name && currentUser.user_name.trim() !== "") return;
 
   let newName = "";
-
   while (true) {
-    newName = prompt(
-      "Welcome to the Summer Reading Challenge!\n\nPlease choose a unique display name.\nDo NOT include your real name or personal details:\n"
-    );
-
+    newName = prompt("Welcome! Please choose a unique display name (No real names):");
     if (newName === null) {
       alert("A display name is required to continue.");
       continue;
     }
-
     newName = newName.trim();
-
-    // Basic length check
     if (newName.length < 3) {
       alert("Username must be at least 3 characters.");
       continue;
     }
 
-    // Check for duplicates (case-insensitive)
     const { data: existingUsers, error } = await supabase
       .from("Userdetails")
       .select("user_name")
       .ilike("user_name", newName);
 
     if (error) {
-      console.error("Username check failed:", error);
-      alert("Error checking username. Please try again.");
+      alert("Error checking username.");
       continue;
     }
-
     if (existingUsers.length > 0) {
-      alert(`The name "${newName}" is already taken. Try another one.`);
+      alert(`The name "${newName}" is taken. Try another.`);
       continue;
     }
-
-    break; // Username is valid + not duplicated
+    break;
   }
 
-  // Save username
   const { error: updateError } = await supabase
     .from("Userdetails")
     .update({ user_name: newName })
     .eq("UUID", currentUser.UUID);
 
   if (updateError) {
-    console.error("Failed to update username:", updateError.message);
-    alert("Error saving your username. Please try again.");
-    return ensureUsername(); // retry
+    alert("Error saving username.");
+    return ensureUsername();
   }
-
   currentUser.user_name = newName;
 }
 
@@ -131,24 +110,23 @@ async function ensureUsername() {
   /* ========= RENDER FUNCTIONS ========= */
   function renderWelcome(user) {
     document.getElementById('profileInitial').textContent = user.user_name[0].toUpperCase();
-    document.getElementById('welcomeMessage').textContent = `Welcome back, ${user.user_name}!`;
+    document.getElementById('welcomeMessage').textContent = `Hello, ${user.user_name}!`;
   }
 
   function renderUserMinutes(total) {
-    document.getElementById('userMinutes').textContent = `${total.toLocaleString()} minutes`;
+    document.getElementById('userMinutes').textContent = total.toLocaleString();
   }
 
   function renderLeaderboard(users) {
   const container = document.getElementById('leaderboardContainer');
   container.innerHTML = '';
-  if (!users.length) return (container.textContent = 'No leaderboard data available.');
+  if (!users.length) return (container.textContent = 'No data available.');
 
   users
     .sort((a, b) => b.minutes_logged - a.minutes_logged)
     .slice(0, 10)
     .forEach(user => {
-
-      const displayName = user.user_name ?? "Unknown User";
+      const displayName = user.user_name ?? "User";
       const initial = displayName[0].toUpperCase();
 
       const bar = document.createElement('div');
@@ -156,10 +134,8 @@ async function ensureUsername() {
 
       bar.innerHTML = `
         <div class="leaderboard-profile">${initial}</div>
-        <div style="background:#007bff;width:${Math.min(user.minutes_logged / 10,300)}px;height:30px;border-radius:4px;"></div>
         <div class="leaderboard-label">${displayName}: ${user.minutes_logged} min</div>
       `;
-
       container.appendChild(bar);
     });
 }
@@ -168,183 +144,90 @@ async function ensureUsername() {
  function renderProgressBar(total) {
   const fill = document.getElementById('progressFill');
   const text = document.getElementById('progressText');
-  const container = document.getElementById('communityProgressBar');
-
+  
+  // Use a hard cap for the bar visual
   const percent = Math.min((total / COMMUNITY_GOAL) * 100, 100);
   fill.style.width = `${percent}%`;
 
-  text.textContent =
-    `Community has logged ${total.toLocaleString()} of ${COMMUNITY_GOAL.toLocaleString()} minutes (${percent.toFixed(2)}%)`;
-
-  // Remove old markers
-  container.querySelectorAll('.milestone, .milestone-label').forEach(el => el.remove());
-
-  const milestones = [10000, 50000, 100000];
-  for (let i = 200000; i <= COMMUNITY_GOAL; i += 100000) milestones.push(i);
-
-  milestones.forEach(ms => {
-    const pos = (ms / COMMUNITY_GOAL) * 100;
-
-    const line = document.createElement('div');
-    line.className = 'milestone';
-    line.style.left = `${pos}%`;
-
-    const label = document.createElement('div');
-    label.className = 'milestone-label';
-    label.style.left = `${pos}%`;
-    label.textContent =
-      ms >= 1_000_000 ? (ms / 1_000_000) + 'M'
-      : (ms >= 1000 ? (ms / 1000) + 'k' : ms);
-
-    container.append(line, label);
-  });
+  const percentText = ((total / COMMUNITY_GOAL) * 100).toFixed(1);
+  text.textContent = `${percentText}% of Goal`;
 }
 
-  /* ========= BINGO AUTO-FIT ========= */
-  function autoFitText(el) {
-    const parent = el.parentElement;
-
-    let min = 1;
-    let max = 40;
-    let size = max;
-
-    function fits(fontSize) {
-      el.style.fontSize = fontSize + "px";
-      return (
-        el.scrollWidth <= parent.clientWidth * 0.90 &&
-        el.scrollHeight <= parent.clientHeight * 0.90
-      );
-    }
-
-    while (min <= max) {
-      let mid = Math.floor((min + max) / 2);
-      if (fits(mid)) {
-        size = mid;
-        min = mid + 1;
-      } else {
-        max = mid - 1;
-      }
-    }
-
-    el.style.fontSize = size + "px";
-  }
-
-  function autoFitAllBingoText() {
-    const spans = document.querySelectorAll("#bingoBoard div span");
-    spans.forEach(span => autoFitText(span));
-  }
-  /* ========= NZ DATE HELPER (REQUIRED) ========= */
+  /* ========= NZ DATE HELPER ========= */
 function toNZDateString(dateInput) {
   const date = new Date(dateInput);
-
-  // Format as dd/mm/yyyy in NZ timezone
   const nz = new Intl.DateTimeFormat("en-NZ", {
     timeZone: "Pacific/Auckland",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit"
+    year: "numeric", month: "2-digit", day: "2-digit"
   }).format(date);
-
-  // Convert "04/12/2025" → "2025-12-04"
   const [day, month, year] = nz.split("/");
   return `${year}-${month}-${day}`;
 }
-  /* ========= READING STREAK (unchanged except logs fetch) ========= */
+
+  /* ========= READING STREAK ========= */
   async function loadReadingStreak() {
   if (!currentUser) return;
 
   const logs = await getUserLogsById(currentUser.UUID);
-
   const streakEl = document.getElementById("readingStreakDisplay");
-  const highScoreEl = document.getElementById("dailyHighScoreDisplay");
-
+  
   if (!logs || logs.length === 0) {
-    streakEl.textContent = "Reading Streak: 0 days";
-    highScoreEl.textContent = "Daily High Score: 0 minutes";
+    streakEl.textContent = "0";
     return;
   }
 
-  /* ---- GROUP BY NZ LOCAL DATE ---- */
+  /* Group by NZ Date */
   const dayTotals = {};
   logs.forEach(l => {
-    const day = toNZDateString(l.time_logged);  // NZ FIX
+    const day = toNZDateString(l.time_logged);
     dayTotals[day] = (dayTotals[day] || 0) + l.minutes_logged;
   });
 
-  highScoreEl.textContent =
-    "Daily High Score: " + Math.max(...Object.values(dayTotals)) + " minutes";
-
   const days = Object.keys(dayTotals).sort().reverse();
-
-  const todayStr = toNZDateString(Date.now());          // NZ FIX
+  const todayStr = toNZDateString(Date.now());
   const yesterdayStr = toNZDateString(Date.now() - 864e5);
-
   const latestDay = days[0];
 
-  /* ---- CHECK IF STREAK BREAKS ---- */
+  /* Check break */
   if (latestDay !== todayStr && latestDay !== yesterdayStr) {
-    streakEl.textContent = "Reading Streak: 0 days";
-
-    await supabase
-      .from("Userdetails")
-      .update({ reading_streak: 0 })
-      .eq("UUID", currentUser.UUID);
-
+    streakEl.textContent = "0";
+    await supabase.from("Userdetails").update({ reading_streak: 0 }).eq("UUID", currentUser.UUID);
     return;
   }
 
-  /* ---- BUILD STREAK ---- */
-  const toDate = (str) => new Date(str + "T00:00:00"); // local NZ
+  /* Build Streak */
+  const toDate = (str) => new Date(str + "T00:00:00");
   let streak = 1;
 
   for (let i = 1; i < days.length; i++) {
     const prev = toDate(days[i - 1]);
     const curr = toDate(days[i]);
     const diffDays = (prev - curr) / 864e5;
-
     if (diffDays === 1) streak++;
     else break;
   }
 
-  streakEl.textContent = `Reading Streak: ${streak} day(s)`;
-
-  await supabase
-    .from("Userdetails")
-    .update({ reading_streak: streak })
-    .eq("UUID", currentUser.UUID);
+  streakEl.textContent = `${streak}`;
+  await supabase.from("Userdetails").update({ reading_streak: streak }).eq("UUID", currentUser.UUID);
 }
 
 
-  /* ========= DASHBOARD LOADER (MAIN FIX HERE) ========= */
+  /* ========= DASHBOARD LOADER ========= */
   async function loadDashboard() {
-
-  // 🔵 1. Read UUID passed from login.html
   const uuid = sessionStorage.getItem("userId");
-  if (!uuid) {
-    console.warn("No userId found, redirecting to login.");
-    return window.location.href = "login.html";
-  }
+  if (!uuid) return window.location.href = "login.html";
 
-  // 🔵 2. Load Userdetails
   currentUser = await getUserDataById(uuid);
-  if (!currentUser) {
-    console.warn("User not found, redirecting.");
-    return window.location.href = "login.html";
-  }
+  if (!currentUser) return window.location.href = "login.html";
+  
   await ensureUsername();
-
-  // 🔵 3. Render everything using existing logic
   renderWelcome(currentUser);
 
   const userLogs = await getUserLogsById(currentUser.UUID);
   const totalUserMinutes = userLogs.reduce((s, e) => s + e.minutes_logged, 0);
-
   renderUserMinutes(totalUserMinutes);
 
-  await supabase
-    .from("Userdetails")
-    .update({ minutes_logged: totalUserMinutes })
-    .eq("UUID", currentUser.UUID);
+  await supabase.from("Userdetails").update({ minutes_logged: totalUserMinutes }).eq("UUID", currentUser.UUID);
 
   const allUsers = await getAllUsers();
   renderLeaderboard(allUsers);
@@ -358,22 +241,20 @@ function toNZDateString(dateInput) {
 }
 
 
-  /* ========= BINGO LOGIC (ONLY UPDATED WHERE USERNAME → UUID) ========= */
+  /* ========= BINGO LOGIC ========= */
   const BINGO_SIZE = 5;
 let bingoData = [];
 let userBingoState = Array(BINGO_SIZE).fill(null).map(() => Array(BINGO_SIZE).fill(false));
 let BINGO_WIN_BONUS = 20;
-let currentBingoIndex = null; // Tracks which bingo square is currently opened in modal
+let currentBingoIndex = null;
 
-// Helper to create short 1-2 word titles from long descriptions
-// YOU MAY NEED TO ADJUST THESE KEYWORDS BASED ON YOUR DATABASE CONTENT
 function getShortBingoTitle(description) {
     const text = description.toLowerCase();
     if (text.includes("comic") || text.includes("graphic")) return "Comic Book";
     if (text.includes("mystery")) return "Mystery";
     if (text.includes("fantasy")) return "Fantasy";
-    if (text.includes("sci-fi") || text.includes("science fiction")) return "Sci-Fi";
-    if (text.includes("non-fiction") || text.includes("fact")) return "Non-Fiction";
+    if (text.includes("sci-fi")) return "Sci-Fi";
+    if (text.includes("non-fiction")) return "Non-Fiction";
     if (text.includes("animal")) return "Animal Book";
     if (text.includes("friend")) return "Read to Friend";
     if (text.includes("outside")) return "Read Outside";
@@ -383,7 +264,6 @@ function getShortBingoTitle(description) {
     if (text.includes("blue cover")) return "Blue Cover";
     if (text.includes("red cover")) return "Red Cover";
     if (text.includes("minutes")) return "Read 20 Mins";
-    // Fallback: grab first two words if no keywords match
     const words = description.split(" ");
     return words.slice(0, 2).join(" ");
 }
@@ -418,9 +298,9 @@ function renderBingoBoard(challenges) {
   challenges.forEach((item, index) => {
     const cell = document.createElement("div");
     cell.id = `bingo-cell-${index}`;
+    
+    // Create span for centering logic (required for Sun CSS)
     const span = document.createElement("span");
-
-    // Short title
     span.textContent = getShortBingoTitle(item.challenge);
     cell.appendChild(span);
 
@@ -428,22 +308,17 @@ function renderBingoBoard(challenges) {
     const col = index % BINGO_SIZE;
 
     if (userBingoState[row][col]) cell.classList.add("completed");
-
-    // OPEN modal on click
     cell.addEventListener("click", () => openBingoModal(index));
 
     board.appendChild(cell);
   });
-
-  autoFitAllBingoText();
+  
+  // No autofit needed with new CSS
 }
 
-// Hook the modal confirm button
+// Modal Listeners
 document.getElementById('modalConfirmBtn').addEventListener('click', processBingoAction);
-document.getElementById('modalCancelBtn').addEventListener('click', () => {
-    closeBingoModal();
-});
-
+document.getElementById('modalCancelBtn').addEventListener('click', closeBingoModal);
 
 
 // --- Modal Functions ---
@@ -459,21 +334,18 @@ function openBingoModal(index) {
     const title = document.getElementById('modalTitle');
     const desc = document.getElementById('modalDescription');
     const confirmBtn = document.getElementById('modalConfirmBtn');
+    const cancelBtn = document.getElementById('modalCancelBtn');
 
-    // Set modal content based on state
     if (isCompleted) {
-        title.textContent = "Completed Challenge!";
-        desc.textContent = `You have already completed: "${challenge.challenge}". Do you want to unmark it?`;
-        confirmBtn.textContent = "Unmark Challenge ↩️";
-        confirmBtn.classList.remove('btn-primary');
-        confirmBtn.classList.add('btn-secondary'); // Use secondary color for unmarking
+        title.textContent = "Completed!";
+        desc.textContent = `You have already finished: "${challenge.challenge}". Unmark this tile?`;
+        confirmBtn.textContent = "Unmark ↩️";
+        confirmBtn.className = "btn btn-outline"; // Reset styling
     } else {
         title.textContent = getShortBingoTitle(challenge.challenge);
-        desc.textContent = challenge.challenge; // Show full description here
-        desc.innerHTML += `<br><br><strong>Bonus: +${challenge.bonus_minutes} mins</strong>`;
+        desc.innerHTML = `${challenge.challenge}<br><br><strong>Bonus: +${challenge.bonus_minutes} mins</strong>`;
         confirmBtn.textContent = "I Did It! ✅";
-        confirmBtn.classList.remove('btn-secondary');
-        confirmBtn.classList.add('btn-primary');
+        confirmBtn.className = "btn btn-primary";
     }
     
     modal.classList.remove('hidden');
@@ -484,12 +356,12 @@ function closeBingoModal() {
     currentBingoIndex = null;
 }
 
-// Called when "I Did It" or "Unmark" is clicked in modal
+// Logic for completing/unmarking
 async function processBingoAction() {
     if (currentBingoIndex === null) return;
     
     const index = currentBingoIndex;
-    closeBingoModal(); // Close modal first
+    closeBingoModal(); 
 
     const cell = document.getElementById(`bingo-cell-${index}`);
     const row = Math.floor(index / BINGO_SIZE);
@@ -501,17 +373,17 @@ async function processBingoAction() {
     const wasCompleted = userBingoState[row][col];
     const newCompleted = !wasCompleted;
 
-    // Optimistic UI update
+    // UI Update
     userBingoState[row][col] = newCompleted;
     cell.classList.toggle("completed", newCompleted);
 
     const hadBingoBefore = checkAnyBingo(prevState);
     const hasBingoAfter = checkAnyBingo(userBingoState);
 
+    // Trigger Confetti if new Bingo
     if (!hadBingoBefore && hasBingoAfter) launchConfetti();
 
     try {
-        // Database updates (same as before)
         const { data: existing } = await supabase
         .from("user_bingo_state")
         .select("*")
@@ -552,10 +424,9 @@ async function processBingoAction() {
 
     } catch (err) {
         console.error(err);
-        // Revert UI if error
         userBingoState[row][col] = wasCompleted;
         cell.classList.toggle("completed", wasCompleted);
-        alert("Error saving bingo state. Please try again.");
+        alert("Error saving bingo state.");
     }
 }
 
@@ -569,70 +440,6 @@ async function processBingoAction() {
     return false;
   }
 
-  async function handleBingoClick(index, cell) {
-    const row = Math.floor(index / BINGO_SIZE);
-    const col = index % BINGO_SIZE;
-    const bonus = bingoData[index].bonus_minutes;
-    const challengeName = bingoData[index].challenge;
-
-    const prevState = JSON.parse(JSON.stringify(userBingoState));
-    const wasCompleted = userBingoState[row][col];
-    const newCompleted = !wasCompleted;
-
-    userBingoState[row][col] = newCompleted;
-    cell.classList.toggle("completed", newCompleted);
-
-    const hadBingoBefore = checkAnyBingo(prevState);
-    const hasBingoAfter = checkAnyBingo(userBingoState);
-
-    try {
-      const { data: existing } = await supabase
-        .from("user_bingo_state")
-        .select("*")
-        .eq("UUID", currentUser.UUID)
-        .eq("bingo_index", index)
-        .limit(1);
-
-      if (existing && existing.length > 0) {
-        await supabase
-          .from("user_bingo_state")
-          .update({
-            completed: newCompleted,
-            completed_at: newCompleted ? new Date().toISOString() : null
-          })
-          .eq("UUID", currentUser.UUID)
-          .eq("bingo_index", index);
-      } else {
-        await supabase.from("user_bingo_state").insert([{
-          UUID: currentUser.UUID,         // UPDATED
-          bingo_index: index,
-          completed: true,
-          completed_at: new Date().toISOString()
-        }]);
-      }
-
-      await logReadingMinutes(
-        currentUser,
-        newCompleted ? bonus : -bonus,
-        `${newCompleted ? "Bingo" : "Unmark Bingo"}: ${challengeName}`
-      );
-
-      if (!hadBingoBefore && hasBingoAfter) {
-        await logReadingMinutes(currentUser, BINGO_WIN_BONUS, "Bingo Board Win");
-      }
-
-      if (hadBingoBefore && !hasBingoAfter) {
-        await logReadingMinutes(currentUser, -BINGO_WIN_BONUS, "Bingo Board Win Reverted");
-      }
-
-    } catch (err) {
-      console.error(err);
-      userBingoState[row][col] = wasCompleted;
-      cell.classList.toggle("completed", wasCompleted);
-      await loadBingo();
-    }
-  }
-
   async function loadBingo() {
     try {
       const data = await getBingoData();
@@ -640,9 +447,7 @@ async function processBingoAction() {
         console.warn("Not enough bingo challenges.");
         return;
       }
-
       BINGO_WIN_BONUS = data.find(d => d.type === "win_bonus")?.bonus_minutes || 20;
-
       userBingoState = await getUserBingoState(currentUser.UUID);
       renderBingoBoard(data.slice(0, 25));
     } catch (err) {
@@ -650,7 +455,7 @@ async function processBingoAction() {
     }
   }
 
-  /* ========= CONFETTI (unchanged) ========= */
+  /* ========= CONFETTI ========= */
   const confettiCanvas = document.getElementById("confettiCanvas");
   const ctx = confettiCanvas.getContext("2d");
 
@@ -669,7 +474,6 @@ async function processBingoAction() {
 
     for (let i = 0; i < 180; i++) {
       const side = i % 2 === 0 ? "left" : "right";
-
       confetti.push({
         x: side === "left" ? 0 : confettiCanvas.width,
         y: confettiCanvas.height,
@@ -686,14 +490,11 @@ async function processBingoAction() {
 
     function animate() {
       ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-
       confetti.forEach(p => {
         p.x += p.vx;
         p.y += p.vy;
         p.vy += p.gravity;
-
         p.rotation += p.vrot;
-
         ctx.save();
         ctx.translate(p.x, p.y);
         ctx.rotate((p.rotation * Math.PI) / 180);
@@ -701,29 +502,11 @@ async function processBingoAction() {
         ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
         ctx.restore();
       });
-
-      if (Date.now() < endTime) {
-        requestAnimationFrame(animate);
-      } else {
-        ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-      }
+      if (Date.now() < endTime) requestAnimationFrame(animate);
+      else ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
     }
-
     animate();
   }
-
-  const originalHandleBingoClick = handleBingoClick;
-  handleBingoClick = async function(index, cell) {
-    const prevState = JSON.parse(JSON.stringify(userBingoState));
-    await originalHandleBingoClick(index, cell);
-
-    const hadBingoBefore = checkAnyBingo(prevState);
-    const hasBingoAfter = checkAnyBingo(userBingoState);
-
-    if (!hadBingoBefore && hasBingoAfter) {
-      launchConfetti();
-    }
-  };
 
   /* ========= EVENT HANDLERS ========= */
   document.getElementById('profileIcon').addEventListener('click', e => {
@@ -731,13 +514,11 @@ async function processBingoAction() {
     const dropdown = document.getElementById('profileDropdown');
     dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
   });
-
-  window.addEventListener("resize", () => {
-    autoFitAllBingoText();
-  });
-
-  window.addEventListener("orientationchange", () => {
-    setTimeout(autoFitAllBingoText, 200);
+  
+  // ADDED: Logout functionality
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+     sessionStorage.clear();
+     window.location.href = "login.html";
   });
 
   document.addEventListener('click', e => {
@@ -760,7 +541,7 @@ async function processBingoAction() {
       document.getElementById('bookTitleInput').value = '';
       await loadDashboard();
     } catch (err) {
-      msg.textContent = 'Error logging minutes: ' + err.message;
+      msg.textContent = 'Error logging: ' + err.message;
     }
   });
 
@@ -772,25 +553,25 @@ async function processBingoAction() {
 
     if (!stopwatchInterval) {
       startTime = Date.now();
-      btn.textContent = 'Stop Stopwatch';
+      btn.textContent = 'Stop Timer';
       stopwatchInterval = setInterval(() => {
         const elapsed = Date.now() - startTime;
-        display.textContent = '⏱ ' + formatTime(elapsed);
+        display.textContent = formatTime(elapsed);
       }, 1000);
       return;
     }
 
     const title = document.getElementById('bookTitleInput').value.trim();
-    if (!title) return (msg.textContent = 'Please enter the book title before stopping the stopwatch.');
+    if (!title) return (msg.textContent = 'Enter title before stopping.');
 
     clearInterval(stopwatchInterval);
     stopwatchInterval = null;
-    btn.textContent = 'Start Stopwatch';
+    btn.textContent = 'Start Timer';
 
     const elapsedMinutes = Math.round((Date.now() - startTime) / 60000);
-    if (elapsedMinutes < 1) return (msg.textContent = 'Session too short to log (<1 min).');
+    if (elapsedMinutes < 1) return (msg.textContent = 'Session too short to log.');
 
-    if (confirm(`You read "${title}" for about ${elapsedMinutes} minute(s). Log this time?`)) {
+    if (confirm(`Log ${elapsedMinutes} minute(s) for "${title}"?`)) {
       await logReadingMinutes(currentUser, elapsedMinutes, title);
       document.getElementById('bookTitleInput').value = '';
       await loadDashboard();
