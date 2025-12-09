@@ -175,9 +175,24 @@ function renderWelcome(user) {
   document.getElementById('welcomeMessage').textContent = `Hello, ${user.user_name}!`;
 }
 
-function renderUserMinutes(total) {
-  document.getElementById('userMinutes').textContent = total.toLocaleString();
+function renderUserMinutes(totalMinutes) {
+  const el = document.getElementById('userMinutes');
+  if (!el) return;
+
+  const minutes = totalMinutes % 60;
+  const hours = Math.floor(totalMinutes / 60) % 24;
+  const days = Math.floor(totalMinutes / (60 * 24));
+
+  let result = [];
+
+  if (days > 0) result.push(`${days} day${days !== 1 ? 's' : ''}`);
+  if (hours > 0) result.push(`${hours} hour${hours !== 1 ? 's' : ''}`);
+  if (minutes > 0 || result.length === 0)
+    result.push(`${minutes} min${minutes !== 1 ? 's' : ''}`);
+
+  el.textContent = result.join(', ');
 }
+
 
 function renderLeaderboard(users) {
   const container = document.getElementById('leaderboardContainer');
