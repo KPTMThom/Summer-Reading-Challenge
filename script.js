@@ -307,9 +307,9 @@ async function loadTopRated() {
 
   const { data, error } = await supabase
     .from('user_bookshelf')
-    .select('book_title, avg(rating)')
-    .group('book_title')
-    .order('avg', { ascending: false })
+    .select('book_title, avg:avg(rating)')
+    .not('rating', 'is', null)               // exclude NULL ratings
+    .order('avg', { ascending: false })      // highest average first
     .limit(5);
 
   if (error) {
