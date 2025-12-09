@@ -301,3 +301,50 @@ input:focus { border-color: var(--brand-bright-blue); }
 
 /* Confetti */
 #confettiCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
+
+/* ========= AUTOCOMPLETE DROPDOWN ========= */
+.autocomplete-wrapper {
+  position: relative;
+  flex: 2; /* Allows title input to be wider than minutes input */
+}
+
+/* The dropdown menu */
+.suggestions-list {
+  position: absolute;
+  top: 100%; /* Pushes it right below the input */
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 0 0 8px 8px; /* Rounded corners on bottom only */
+  max-height: 200px;
+  overflow-y: auto; /* Scroll if list is long */
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  z-index: 999; /* Floats above other cards */
+  box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+}
+
+.suggestions-list.hidden {
+  display: none;
+}
+
+/* Individual items */
+.suggestions-list li {
+  padding: 10px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  color: #333;
+  font-size: 0.95rem;
+  background: white;
+}
+
+.suggestions-list li:last-child {
+  border-bottom: none;
+}
+
+.suggestions-list li:hover {
+  background-color: #e6f7ff; /* Light blue highlight on hover */
+  color: #000;
+}
