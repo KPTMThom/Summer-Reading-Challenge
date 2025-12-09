@@ -719,5 +719,115 @@ window.addEventListener('resize', async () => {
   renderProgressBar(total);
 });
 
+/* ========= NOTIFICATIONS SYSTEM (FILE BASED) ========= */
+const notifBtn = document.getElementById('notifBtn');
+const notifDropdown = document.getElementById('notifDropdown');
+const notifBadge = document.getElementById('notifBadge');
+const notifList = document.getElementById('notifList');
+const notifModal = document.getElementById('notifModal');
+const notifModalBody = document.getElementById('notifModalBody');
+const closeNotifModalBtn = document.getElementById('closeNotifModalBtn');
+
+// 1. Toggle Dropdown
+notifBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  notifDropdown.classList.toggle('hidden');
+  
+  // When opening, hide the red badge and save "last seen ID"
+  if (!notifDropdown.classList.contains('hidden')) {
+    notifBadge.classList.add('hidden');
+    // We update the "last read" ID to the highest ID currently in the list
+    const newestId = notifBtn.dataset.newestId || 0;
+    localStorage.setItem('lastReadNotifId', newestId);
+  }
+});
+
+// 2. Close Dropdown if clicking outside
+document.addEventListener('click', (e) => {
+  if (!notifBtn.contains(e.target) && !notifDropdown.contains(e.target)) {
+    notifDropdown.classList.add('hidden');
+  }
+});
+
+// 3. Modal Controls
+closeNotifModalBtn.addEventListener('click', () => {
+  notifModal.classList.add('hidden');
+});
+
+// 4. Load Notifications from HTML File
+async function loadNotifications() {
+  try {
+    // Fetch the raw HTML file
+    const response = await fetch('notifications.html');
+    if (!response.ok) throw new Error("Missing notifications file");
+    
+    const text = await response.text();
+    
+    // Parse the text into a fake DOM so we can query it
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(text, 'text/html');
+    
+    // Get all entries
+    const entries = Array.from(doc.querySelectorAll('.notification-entry'));
+    
+    renderNotifications(entries);
+    checkUnreadStatus(entries);
+    
+  } catch (err) {
+    console.warn("Could not load notifications:", err);
+    notifList.innerHTML = '<li class="empty-notif">Unable to load updates.</li>';
+  }
+}
+
+function renderNotifications(entries) {
+  notifList.innerHTML = '';
+
+  if (entries.length === 0) {
+    notifList.innerHTML = '<li class="empty-notif">No new notifications</li>';
+    return;
+  }
+
+  entries.forEach(entry => {
+    const id = entry.getAttribute('data-id');
+    const date = entry.getAttribute('data-date');
+    const summaryHTML = entry.querySelector('.summary').innerHTML;
+    const fullContentHTML = entry.querySelector('.full-content').innerHTML;
+
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <div style="margin-bottom:4px;">${summaryHTML}</div>
+      <span class="notif-time">${date}</span>
+    `;
+    
+    // Click to open Modal
+    li.addEventListener('click', () => {
+      notifModalBody.innerHTML = fullContentHTML; // Inject styled HTML
+      notifModal.classList.remove('hidden');
+      notifDropdown.classList.add('hidden'); // Close dropdown
+    });
+
+    notifList.appendChild(li);
+  });
+}
+
+function checkUnreadStatus(entries) {
+  if (entries.length === 0) return;
+
+  // The file should be ordered new -> old, so the first one is the newest
+  // We use the 'data-id' to track versioning
+  const newestId = parseInt(entries[0].getAttribute('data-id')) || 0;
+  
+  // Store newest ID on the button for later reference
+  notifBtn.dataset.newestId = newestId;
+
+  const lastReadId = parseInt(localStorage.getItem('lastReadNotifId')) || 0;
+
+  if (newestId > lastReadId) {
+    notifBadge.classList.remove('hidden');
+  } else {
+    notifBadge.classList.add('hidden');
+  }
+}
+
 /* ========= INIT ========= */
 loadDashboard();
