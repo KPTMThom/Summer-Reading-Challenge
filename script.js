@@ -305,30 +305,49 @@ async function loadTopRated() {
   const container = document.getElementById('topRatedList');
   if (!container) return;
 
+  // 1. Fetch all books that have ratings
   const { data, error } = await supabase
     .from('user_bookshelf')
-    .select('book_title, avg:avg(rating)')
-    .not('rating', 'is', null)               // exclude NULL ratings
-    .order('avg', { ascending: false })      // highest average first
-    .limit(5);
+    .select('book_title, rating')
+    .not('rating', 'is', null); // exclude null ratings
 
   if (error) {
     console.error(error);
     return;
   }
 
-  container.innerHTML = '';
+  // No data?
   if (!data || data.length === 0) {
     container.innerHTML = '<p class="tiny-note">No rated books yet.</p>';
     return;
   }
 
-  data.forEach(book => {
+  // 2. Group ratings by book_title
+  const groups = {};
+  data.forEach(row => {
+    if (!groups[row.book_title]) groups[row.book_title] = [];
+    groups[row.book_title].push(row.rating);
+  });
+
+  // 3. Compute averages
+  const averages = Object.entries(groups).map(([title, ratings]) => {
+    const avg = ratings.reduce((a, b) => a + b, 0) / ratings.length;
+    return { book_title: title, average_rating: avg };
+  });
+
+  // 4. Sort by highest average and take top 5
+  const top5 = averages
+    .sort((a, b) => b.average_rating - a.average_rating)
+    .slice(0, 5);
+
+  // 5. Render
+  container.innerHTML = '';
+  top5.forEach(book => {
     const div = document.createElement('div');
     div.className = 'top-book-row';
     div.innerHTML = `
       <span>${book.book_title}</span>
-      <span class="top-book-score">★ ${Number(book.avg).toFixed(2)}</span>
+      <span class="top-book-score">★ ${book.average_rating.toFixed(2)}</span>
     `;
     container.appendChild(div);
   });
