@@ -568,5 +568,83 @@ async function processBingoAction() {
     renderProgressBar(total);
   });
 
+/* ========= AUTOCOMPLETE LOGIC ========= */
+const titleInput = document.getElementById('bookTitleInput');
+const suggestionsList = document.getElementById('suggestionsList');
+let debounceTimer;
+
+// 1. Listen for typing
+titleInput.addEventListener('input', (e) => {
+  const query = e.target.value.trim();
+  clearTimeout(debounceTimer); // Reset timer on every keystroke
+
+  if (query.length < 3) {
+    suggestionsList.classList.add('hidden');
+    return;
+  }
+
+  // Wait 300ms after typing stops before hitting Supabase
+  debounceTimer = setTimeout(() => fetchBookSuggestions(query), 300);
+});
+
+// 2. Hide list if clicking outside
+document.addEventListener('click', (e) => {
+  if (!titleInput.contains(e.target) && !suggestionsList.contains(e.target)) {
+    suggestionsList.classList.add('hidden');
+  }
+});
+
+// 3. Fetch data from Supabase
+async function fetchBookSuggestions(query) {
+  // Search the loghistory table for similar titles
+  const { data, error } = await supabase
+    .from('loghistory')
+    .select('book_title')
+    .ilike('book_title', `%${query}%`) // % matches anything before/after
+    .limit(50);
+
+  if (error) {
+    console.error("Autocomplete Error:", error);
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    suggestionsList.classList.add('hidden');
+    return;
+  }
+
+  // Remove duplicates (Set) and clean up case
+  const titles = data.map(d => d.book_title);
+  // This creates a unique list, case-sensitive
+  const uniqueTitles = [...new Set(titles)];
+
+  renderSuggestions(uniqueTitles);
+}
+
+// 4. Draw the list
+function renderSuggestions(titles) {
+  suggestionsList.innerHTML = '';
+  
+  if (titles.length === 0) {
+    suggestionsList.classList.add('hidden');
+    return;
+  }
+
+  // Limit to top 8 results to keep it neat
+  titles.slice(0, 8).forEach(title => {
+    const li = document.createElement('li');
+    li.textContent = title;
+    
+    li.addEventListener('click', () => {
+      titleInput.value = title; // Fill input
+      suggestionsList.classList.add('hidden'); // Hide list
+    });
+    
+    suggestionsList.appendChild(li);
+  });
+
+  suggestionsList.classList.remove('hidden');
+}
+
   /* ========= INIT ========= */
   loadDashboard();
