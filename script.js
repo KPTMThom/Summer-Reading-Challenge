@@ -512,7 +512,7 @@ let debounceTimer;
 titleInput.addEventListener('input', (e) => {
   const query = e.target.value.trim();
   clearTimeout(debounceTimer);
-  if (query.length < 3) {
+  if (query.length < 1) {
     suggestionsList.classList.add('hidden');
     return;
   }
