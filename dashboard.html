@@ -44,8 +44,12 @@
       <div class="card-header">
         <h3>⏱️ Log Time</h3>
       </div>
+      
       <div class="input-group">
-        <input id="bookTitleInput" type="text" placeholder="Book Title..." />
+        <div class="autocomplete-wrapper">
+          <input id="bookTitleInput" type="text" placeholder="Book Title..." autocomplete="off" />
+          <ul id="suggestionsList" class="suggestions-list hidden"></ul>
+        </div>
         <input id="minutesInput" type="number" placeholder="Mins" min="1" max="120" />
       </div>
       <button id="logMinutesBtn" class="btn btn-primary">Save Session</button>
@@ -96,6 +100,7 @@
   <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
