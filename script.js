@@ -303,14 +303,19 @@ window.rateBook = async function(bookId, rating) {
 
 async function loadTopRated() {
   const container = document.getElementById('topRatedList');
-  if(!container) return;
-  
+  if (!container) return;
+
   const { data, error } = await supabase
-    .from('top_rated_books')
-    .select('*')
+    .from('user_bookshelf')
+    .select('book_title, avg(rating)')
+    .group('book_title')
+    .order('avg', { ascending: false })
     .limit(5);
 
-  if (error) { console.error(error); return; }
+  if (error) {
+    console.error(error);
+    return;
+  }
 
   container.innerHTML = '';
   if (!data || data.length === 0) {
@@ -321,7 +326,10 @@ async function loadTopRated() {
   data.forEach(book => {
     const div = document.createElement('div');
     div.className = 'top-book-row';
-    div.innerHTML = `<span>${book.book_title}</span><span class="top-book-score">★ ${book.average_rating}</span>`;
+    div.innerHTML = `
+      <span>${book.book_title}</span>
+      <span class="top-book-score">★ ${Number(book.avg).toFixed(2)}</span>
+    `;
     container.appendChild(div);
   });
 }
