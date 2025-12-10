@@ -25,8 +25,8 @@ const translations = {
     saveSession: "Save Session",
     startTimer: "Start Timer",
     stopTimer: "Stop Timer",
-    communityGoal: "🌍 Help Us Read 1 Million Minutes Across Kāpiti This Summer", // UPDATED
-    bingoHeader: "🏖️ Bingo",
+    communityGoal: "Let's read our way to one million minutes together!",
+    bingoHeader: "Bingo",
     topReaders: "🏆 Top Readers",
     myBookshelf: "📚 My Bookshelf",
     communityFavs: "⭐ Community Favorites",
