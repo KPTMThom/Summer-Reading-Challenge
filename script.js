@@ -178,25 +178,80 @@ async function logReadingMinutes(user, minutes, bookTitle) {
   await loadDashboard();
 }
 
-/* ========= USERNAME PROMPT ========= */
-async function ensureUsername() {
-  if (!currentUser) return;
-  if (currentUser.user_name && currentUser.user_name.trim() !== "") return;
+/* ========= USERNAME PROMPT (CUSTOM MODAL) ========= */
+function ensureUsername() {
+  return new Promise((resolve) => {
+    // 1. Check if user already has a name
+    if (!currentUser) { resolve(); return; }
+    if (currentUser.user_name && currentUser.user_name.trim() !== "") {
+      resolve(); 
+      return;
+    }
 
-  let newName = "";
-  while (true) {
-    newName = prompt("Welcome! Please choose a unique display name (No real names):");
-    if (newName === null) { alert("A display name is required."); continue; }
-    newName = newName.trim();
-    if (newName.length < 3) { alert("Username too short."); continue; }
+    // 2. Get DOM Elements
+    const modal = document.getElementById("usernameModal");
+    const input = document.getElementById("newUsernameInput");
+    const btn = document.getElementById("saveUsernameBtn");
+    const errorMsg = document.getElementById("usernameErrorMsg");
 
-    const { data: existingUsers } = await supabase.from("Userdetails").select("user_name").ilike("user_name", newName);
-    if (existingUsers && existingUsers.length > 0) { alert(`"${newName}" is taken.`); continue; }
-    
-    await supabase.from("Userdetails").update({ user_name: newName }).eq("UUID", currentUser.UUID);
-    currentUser.user_name = newName;
-    break;
-  }
+    // 3. Show Modal
+    modal.classList.remove("hidden");
+    input.focus();
+
+    // 4. Handle Save Click
+    btn.onclick = async () => {
+      const newName = input.value.trim();
+      errorMsg.textContent = ""; // Clear previous errors
+
+      // Validation: Length
+      if (newName.length < 3) {
+        errorMsg.textContent = "Username must be at least 3 characters.";
+        return;
+      }
+
+      // Validation: Check Database for duplicates
+      btn.textContent = "Checking...";
+      btn.disabled = true;
+
+      try {
+        const { data: existingUsers } = await supabase
+          .from("Userdetails")
+          .select("user_name")
+          .ilike("user_name", newName);
+
+        if (existingUsers && existingUsers.length > 0) {
+          errorMsg.textContent = `"${newName}" is already taken.`;
+          btn.textContent = "Start Reading 🚀";
+          btn.disabled = false;
+          return;
+        }
+
+        // Success: Update Database
+        await supabase
+          .from("Userdetails")
+          .update({ user_name: newName })
+          .eq("UUID", currentUser.UUID);
+
+        // Update Local State
+        currentUser.user_name = newName;
+        
+        // Update UI Profile Icon immediately
+        if(document.getElementById("profileInitial")) {
+            document.getElementById("profileInitial").textContent = newName.charAt(0).toUpperCase();
+        }
+
+        // Close Modal and Resume App
+        modal.classList.add("hidden");
+        resolve();
+
+      } catch (err) {
+        console.error("Error saving username:", err);
+        errorMsg.textContent = "Error saving name. Please try again.";
+        btn.textContent = "Start Reading 🚀";
+        btn.disabled = false;
+      }
+    };
+  });
 }
 
 /* ========= DASHBOARD LOADER ========= */
