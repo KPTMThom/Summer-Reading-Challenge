@@ -488,3 +488,22 @@ input:focus { border-color: var(--brand-bright-blue); }
   text-decoration-thickness: 2px;
   text-decoration-color: #ffd54f;
 }
+
+/* Username Modal Specifics */
+#usernameModal .modal-content {
+  text-align: center;
+  max-width: 400px;
+}
+
+#usernameModal input {
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  text-align: center;
+}
+
+#usernameModal input:focus {
+  border-color: var(--accent-blue);
+  outline: none;
+}
