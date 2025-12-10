@@ -9,6 +9,11 @@ let stopwatchInterval = null;
 let startTime = null;
 const STREAK_INTERVAL_SECONDS = 24 * 60 * 60;
 
+// NEW: Variables to store data so we can re-translate immediately
+let cachedUserMinutes = 0;
+let cachedCommunityTotal = 0;
+let cachedLeaderboard = [];
+
 /* ========= TRANSLATIONS (I18N) ========= */
 const translations = {
   en: {
@@ -90,17 +95,17 @@ function updatePageLanguage() {
   document.querySelectorAll('.lang-opt').forEach(span => {
     span.classList.toggle('active', span.getAttribute('data-lang') === currentLang);
   });
-  // 4. Dynamic Elements
+  
+  // 4. Dynamic Elements & Re-Rendering (This fixes the issue!)
   if (currentUser) renderWelcome(currentUser);
+  
   const stopwatchBtn = document.getElementById('stopwatchBtn');
   if (stopwatchBtn) stopwatchBtn.textContent = stopwatchInterval ? t('stopTimer') : t('startTimer');
-  
-  // Refresh stats to apply language to "days/hours" text
-  if (currentUser) {
-    // We re-fetch logs briefly or just re-render if data is stored, 
-    // for simplicity we just trigger a UI refresh of the minutes if possible
-    // or wait for next action.
-  }
+
+  // Re-run render functions with cached data to apply new language
+  renderUserMinutes(cachedUserMinutes); 
+  renderProgressBar(cachedCommunityTotal);
+  renderLeaderboard(cachedLeaderboard);
 }
 
 /* ========= UTILS ========= */
@@ -158,7 +163,7 @@ async function logReadingMinutes(user, minutes, bookTitle) {
 
   if (logError) throw logError;
 
-  // 2. Add to Bookshelf (Upsert to prevent duplicates)
+  // 2. Add to Bookshelf
   const lowerTitle = bookTitle.toLowerCase();
   if (!lowerTitle.includes('bingo') && !lowerTitle.includes('unmark')) {
     const { error: shelfError } = await supabase.from('user_bookshelf').upsert(
@@ -203,30 +208,24 @@ async function loadDashboard() {
     if (!currentUser) return window.location.href = "login.html";
     await ensureUsername();
     
-    // Apply Translations
-    updatePageLanguage();
-    renderWelcome(currentUser);
-
-    // Stats
+    // Load Data and Cache it
     const userLogs = await getUserLogsById(currentUser.UUID);
-    const totalUserMinutes = userLogs.reduce((s, e) => s + e.minutes_logged, 0);
-    renderUserMinutes(totalUserMinutes);
-    await supabase.from("Userdetails").update({ minutes_logged: totalUserMinutes }).eq("UUID", currentUser.UUID);
+    cachedUserMinutes = userLogs.reduce((s, e) => s + e.minutes_logged, 0); // Cache
+    await supabase.from("Userdetails").update({ minutes_logged: cachedUserMinutes }).eq("UUID", currentUser.UUID);
 
-    // Community
-    const allUsers = await getAllUsers();
-    renderLeaderboard(allUsers);
-
+    cachedLeaderboard = await getAllUsers(); // Cache
+    
     const allLogs = await getAllLogs();
-    const totalCommunityMinutes = allLogs.reduce((s, e) => s + e.minutes_logged, 0);
-    renderProgressBar(totalCommunityMinutes);
+    cachedCommunityTotal = allLogs.reduce((s, e) => s + e.minutes_logged, 0); // Cache
 
+    // Initial Render
+    updatePageLanguage(); // This handles rendering the text using the cached data
+    
     // Modules
     await loadBingo();
     await loadReadingStreak();
     await loadBookshelf();
     await loadTopRated();
-    loadNotifications(); // New File-Based Notification system
 
   } catch(e) { console.error("Dashboard Load Error:", e); }
 }
@@ -246,7 +245,7 @@ function renderUserMinutes(totalMinutes) {
   const days = Math.floor(totalMinutes / (60 * 24));
 
   let result = [];
-  // Use translations for time units
+  // Uses t() so it will switch language automatically
   if (days > 0) result.push(`${days} ${days !== 1 ? t('days') : t('day')}`);
   if (hours > 0) result.push(`${hours} ${hours !== 1 ? t('hours') : t('hour')}`);
   if (minutes > 0 || result.length === 0)
@@ -265,6 +264,7 @@ function renderLeaderboard(users) {
     const initial = displayName[0].toUpperCase();
     const bar = document.createElement('div');
     bar.classList.add('leaderboard-bar');
+    // Updated to use t('min')
     bar.innerHTML = `<div class="leaderboard-profile">${initial}</div><div class="leaderboard-label">${displayName}: ${user.minutes_logged} ${t('min')}</div>`;
     container.appendChild(bar);
   });
@@ -367,7 +367,6 @@ let currentBingoIndex = null;
 function getShortBingoTitle(description) {
   const text = description.toLowerCase();
   if (text.includes("minutes")) return "Read 20 Mins";
-  // ... Simplified matching
   const words = description.split(" ");
   return words.slice(0, 2).join(" ");
 }
