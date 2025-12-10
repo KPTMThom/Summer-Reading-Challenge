@@ -440,33 +440,51 @@ input:focus { border-color: var(--brand-bright-blue); }
   padding: 20px 0;
 }
 
-/* ========= LANGUAGE TOGGLE ========= */
-.btn-lang {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(0,0,0,0.1);
-  border-radius: 20px;
-  padding: 5px 10px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 700;
+/* ========= FLOATING LANGUAGE TOGGLE ========= */
+.floating-lang-toggle {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  z-index: 990; /* High enough to float over cards, lower than modals */
+  
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 50px; /* Pill shape */
+  padding: 12px 20px;
+  
   display: flex;
   align-items: center;
-  gap: 5px;
-  color: #555;
-  margin-right: 10px;
+  gap: 8px;
+  
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Soft shadow */
+  cursor: pointer;
+  
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #888;
+  
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.btn-lang .lang-opt {
-  opacity: 0.5;
-  transition: opacity 0.2s;
+.floating-lang-toggle:hover {
+  transform: translateY(-3px); /* Moves up slightly on hover */
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
 }
 
-.btn-lang .lang-opt.active {
-  opacity: 1;
+.floating-lang-toggle .divider {
+  color: #ddd;
+  font-weight: 300;
+}
+
+/* Active State (Controlled by JS) */
+.lang-opt {
+  transition: color 0.3s;
+}
+
+.lang-opt.active {
   color: #000;
   text-decoration: underline;
-}
-
-.btn-lang:hover {
-  background: rgba(255, 255, 255, 0.5);
+  text-decoration-thickness: 2px;
+  text-decoration-color: #ffd54f; /* Matches your accent colors */
 }
