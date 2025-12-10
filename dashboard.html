@@ -14,9 +14,31 @@
 
   <header>
     <div class="header-content">
-      <h1>☀️ Summer Reading Challenge</h1>
-      <div id="profileIcon" class="profile">
-        <span id="profileInitial">U</span>
+      <h1 data-i18n="appTitle">☀️ Summer Reading Challenge</h1>
+      
+      <div class="header-actions">
+        <button id="langToggle" class="btn-lang">
+          <span class="lang-opt active" data-lang="en">ENG</span>
+          <span class="divider">|</span>
+          <span class="lang-opt" data-lang="mi">MĀO</span>
+        </button>
+
+        <div class="notification-wrapper">
+          <button id="notifBtn" class="icon-btn">
+            🔔
+            <span id="notifBadge" class="badge hidden"></span>
+          </button>
+          <div id="notifDropdown" class="notif-dropdown hidden">
+            <div class="notif-header">Notifications</div>
+            <ul id="notifList">
+              <li class="empty-notif">Loading...</li>
+            </ul>
+          </div>
+        </div>
+
+        <div id="profileIcon" class="profile">
+          <span id="profileInitial">U</span>
+        </div>
       </div>
     </div>
   </header>
@@ -25,44 +47,44 @@
     
     <section id="welcomeSection" class="card area-welcome accent-blue">
       <div class="welcome-text">
-        <h2 id="welcomeMessage">Hello!</h2>
-        <p class="subtitle">Let's read some books.</p>
+        <h2 id="welcomeMessage" data-i18n="welcome">Hello!</h2>
+        <p class="subtitle" data-i18n="subtitle">Let's read some books.</p>
       </div>
       <div class="streak-badge">
         <div id="readingStreakDisplay" class="streak-num">0</div>
-        <div class="streak-lbl">Days Fire</div>
+        <div class="streak-lbl" data-i18n="daysFire">Days Fire</div>
       </div>
     </section>
 
     <section id="userMinutesSection" class="card area-stats accent-yellow">
       <div class="stat-icon">📚</div>
       <div class="big-number" id="userMinutes">0</div>
-      <p class="stat-label">Of Time Read</p>
+      <p class="stat-label" data-i18n="totalMinutes">Total Minutes</p>
     </section>
 
     <section id="logMinutesSection" class="card area-log accent-orange">
       <div class="card-header">
-        <h3>⏱️ Log Time</h3>
+        <h3 data-i18n="logTime">⏱️ Log Time</h3>
       </div>
       
       <div class="input-group">
         <div class="autocomplete-wrapper">
-          <input id="bookTitleInput" type="text" placeholder="Book Title..." autocomplete="off" />
+          <input id="bookTitleInput" type="text" placeholder="Book Title..." data-i18n-placeholder="bookTitlePlaceholder" autocomplete="off" />
           <ul id="suggestionsList" class="suggestions-list hidden"></ul>
         </div>
-        <input id="minutesInput" type="number" placeholder="Mins" min="1" max="120" />
+        <input id="minutesInput" type="number" placeholder="Mins" data-i18n-placeholder="minsPlaceholder" min="1" max="120" />
       </div>
-      <button id="logMinutesBtn" class="btn btn-primary">Save Session</button>
+      <button id="logMinutesBtn" class="btn btn-primary" data-i18n="saveSession">Save Session</button>
       <p id="logMessage" class="error-msg"></p>
       <div class="stopwatch-area">
         <span id="stopwatchDisplay" class="digital-clock">00:00</span>
-        <button id="stopwatchBtn" class="btn btn-secondary">Start Timer</button>
+        <button id="stopwatchBtn" class="btn btn-secondary" data-i18n="startTimer">Start Timer</button>
       </div>
     </section>
 
     <section id="communitySection" class="card area-community accent-teal">
       <div class="community-header">
-        <h3>🌍 Community Goal, 1 Million Minutes!</h3>
+        <h3 data-i18n="communityGoal">🌍 Community Goal</h3>
         <span id="progressText" style="font-weight:700; font-size:0.9rem;">Loading...</span>
       </div>
       <div id="communityProgressBar" class="progress-container">
@@ -72,20 +94,20 @@
 
     <section id="bingoSection" class="card area-bingo accent-olive">
       <div class="card-header-row">
-        <h3>🏖️ Bingo</h3>
+        <h3 data-i18n="bingoHeader">🏖️ Bingo</h3>
         <span class="tiny-note">Tap for info</span>
       </div>
       <div id="bingoBoard"></div>
     </section>
 
     <section id="leaderboardSection" class="card area-leaderboard accent-dark">
-      <h3>🏆 Top Readers</h3>
+      <h3 data-i18n="topReaders">🏆 Top Readers</h3>
       <div id="leaderboardContainer" class="leaderboard-list"></div>
     </section>
 
     <section id="bookshelfSection" class="card area-bookshelf accent-purple">
       <div class="card-header">
-        <h3>📚 My Bookshelf</h3>
+        <h3 data-i18n="myBookshelf">📚 My Bookshelf</h3>
       </div>
       <div id="bookshelfList" class="scrollable-list">
         <p class="empty-state">Log time to add books here!</p>
@@ -94,10 +116,9 @@
 
     <section id="topRatedSection" class="card area-toprated accent-pink">
       <div class="card-header">
-        <h3>⭐ Community Favorites</h3>
+        <h3 data-i18n="communityFavs">⭐ Community Favorites</h3>
       </div>
-      <div id="topRatedList" class="leaderboard-list">
-        </div>
+      <div id="topRatedList" class="leaderboard-list"></div>
     </section>
 
   </main>
@@ -113,12 +134,17 @@
     </div>
   </div>
 
+  <div id="notifModal" class="modal-overlay hidden">
+    <div class="modal-content notification-modal-content">
+      <div id="notifModalBody">
+        </div>
+      <div class="modal-actions">
+        <button id="closeNotifModalBtn" class="btn btn-primary">Close</button>
+      </div>
+    </div>
+  </div>
+
   <canvas id="confettiCanvas"></canvas>
   <script src="script.js"></script>
 </body>
 </html>
-
-
-
-
-
