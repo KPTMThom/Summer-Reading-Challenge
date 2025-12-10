@@ -9,6 +9,25 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="style.css" />
+  
+  <style>
+    .site-footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      font-size: 0.85rem;
+      color: #888;
+      margin-top: 2rem;
+    }
+    .site-footer a {
+      color: inherit; /* Inherit the grey color */
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .site-footer a:hover {
+      text-decoration: underline;
+      color: #333; /* Slightly darker on hover */
+    }
+  </style>
 </head>
 <body>
 
@@ -106,6 +125,15 @@
     </section>
 
   </main>
+
+  <footer class="site-footer">
+    <p>
+      Proudly supported by 
+      <a href="https://www.kapiticoast.govt.nz/libraries/" target="_blank" rel="noopener noreferrer">
+        Kāpiti Coast District Libraries
+      </a>
+    </p>
+  </footer>
 
   <div id="bingoModal" class="modal-overlay hidden">
     <div class="modal-content">
