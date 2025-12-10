@@ -17,7 +17,7 @@ let cachedLeaderboard = [];
 /* ========= TRANSLATIONS (I18N) ========= */
 const translations = {
   en: {
-    appTitle: "☀️ Summer Reading Challenge",
+    appTitle: "Summer Reading Challenge",
     subtitle: "Welcome to the Summer Reading Challenge.", // UPDATED
     daysFire: "Days Streak",
     totalMinutes: "Total Minutes Logged", // UPDATED
@@ -46,7 +46,7 @@ const translations = {
     alertTitle: "Please enter a book title."
   },
   mi: {
-    appTitle: "☀️ Wero Pānui Pukapuka",
+    appTitle: "Wero Pānui Pukapuka",
     subtitle: "Nau mai ki te Wero Pānui Pukapuka o te Raumati.", // UPDATED
     daysFire: "Rā Ahi",
     totalMinutes: "Tapeke Meneti Kua Tuhia", // UPDATED
