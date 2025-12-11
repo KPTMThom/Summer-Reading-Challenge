@@ -141,7 +141,10 @@ async function getUserLogsById(userId) {
 }
 
 async function getAllUsers() {
-  const { data, error } = await supabase.from('Userdetails').select('user_name, minutes_logged');
+  // Added 'UUID' to the select query
+  const { data, error } = await supabase
+    .from('Userdetails')
+    .select('user_name, minutes_logged, UUID'); 
   if (error) throw error;
   return data;
 }
@@ -312,16 +315,58 @@ function renderUserMinutes(totalMinutes) {
 function renderLeaderboard(users) {
   const container = document.getElementById('leaderboardContainer');
   container.innerHTML = '';
+  
   if (!users.length) return (container.textContent = 'No data available.');
+  if (!currentUser) return; // Wait for user load
 
-  users.sort((a, b) => b.minutes_logged - a.minutes_logged).slice(0, 10).forEach(user => {
+  // 1. Sort All Users
+  const sortedUsers = [...users].sort((a, b) => b.minutes_logged - a.minutes_logged);
+
+  // 2. Find My Index
+  const myIndex = sortedUsers.findIndex(u => u.UUID === currentUser.UUID);
+  
+  // 3. Define Display List (Top 8)
+  const top8 = sortedUsers.slice(0, 8);
+  
+  // Helper to create HTML for a row
+  const createRow = (user, rank) => {
+    const isMe = user.UUID === currentUser.UUID;
     const displayName = user.user_name ?? "User";
     const initial = displayName[0].toUpperCase();
+    
     const bar = document.createElement('div');
-    bar.classList.add('leaderboard-bar');
-    bar.innerHTML = `<div class="leaderboard-profile">${initial}</div><div class="leaderboard-label">${displayName}: ${user.minutes_logged} ${t('min')}</div>`;
-    container.appendChild(bar);
+    bar.className = `leaderboard-bar ${isMe ? 'is-me' : ''}`;
+    
+    // Add Rank Class for Gold/Silver/Bronze colors
+    const rankClass = rank <= 3 ? `rank-${rank}` : '';
+
+    bar.innerHTML = `
+      <div class="rank-number ${rankClass}">#${rank}</div>
+      <div class="leaderboard-profile">${initial}</div>
+      <div class="leaderboard-label">
+        ${displayName} ${isMe ? '(You)' : ''}: ${user.minutes_logged} ${t('min')}
+      </div>
+    `;
+    return bar;
+  };
+
+  // 4. Render Top 8
+  top8.forEach((user, index) => {
+    container.appendChild(createRow(user, index + 1));
   });
+
+  // 5. Logic: If I am NOT in the top 8, show divider + me
+  if (myIndex >= 8) {
+    // Add "..." Divider
+    const divider = document.createElement('div');
+    divider.className = 'leaderboard-divider';
+    divider.textContent = '...';
+    container.appendChild(divider);
+
+    // Add My Row
+    const myData = sortedUsers[myIndex];
+    container.appendChild(createRow(myData, myIndex + 1));
+  }
 }
 
 function renderProgressBar(total) {
