@@ -22,7 +22,6 @@
 
 body {
   font-family: var(--font-main);
-  /* Summer Sky Gradient */
   background: linear-gradient(180deg, var(--brand-light-blue) 0%, #ffffff 500px);
   color: var(--brand-dark-blue);
   margin: 0;
@@ -51,12 +50,26 @@ header {
   align-items: center;
 }
 
-h1 {
-  font-size: 1.4rem;
+/* Stacked Logo Styles */
+.brand-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  line-height: 1;
   margin: 0;
+}
+
+.brand-logo {
+  height: 40px; 
+  width: auto; 
+  margin-bottom: 5px;
+}
+
+.brand-text {
+  font-size: 0.85rem; 
+  font-weight: 700; 
   color: var(--brand-dark-blue);
-  font-weight: 800;
-  letter-spacing: -0.5px;
 }
 
 .profile {
@@ -74,21 +87,19 @@ h1 {
 }
 .profile:hover { transform: scale(1.05); }
 
-/* --- DASHBOARD GRID (Tetris Layout) --- */
+/* --- DASHBOARD GRID --- */
 .dashboard-grid {
   display: grid;
   gap: 24px;
   max-width: 1100px;
   margin: 30px auto;
   padding: 0 20px;
-  grid-template-columns: 1fr; /* Mobile default */
+  grid-template-columns: 1fr;
 }
 
-/* Desktop Grid Map */
 @media (min-width: 900px) {
   .dashboard-grid {
     grid-template-columns: repeat(4, 1fr);
-    /* Rows adjust automatically based on content */
     grid-template-rows: auto auto auto;
     grid-template-areas:
       "welcome welcome stats log"
@@ -103,14 +114,13 @@ h1 {
   .area-leaderboard { grid-area: leaderboard; }
 }
 
-
 /* --- Card Base Styles --- */
 .card {
   background: white;
   border-radius: var(--radius);
   padding: 24px;
   box-shadow: var(--shadow-soft);
-  border-top: 6px solid #ccc; /* Default (overridden below) */
+  border-top: 6px solid #ccc;
   transition: transform 0.2s, box-shadow 0.2s;
   display: flex; flex-direction: column;
 }
@@ -135,28 +145,22 @@ h1 {
 .accent-teal   { border-top-color: var(--brand-teal); }
 .accent-olive  { border-top-color: var(--brand-olive); }
 .accent-dark   { border-top-color: var(--brand-dark-blue); }
+.accent-purple { border-top-color: #ab47bc; background: white; color: #333; }
+.accent-pink   { border-top-color: #ec407a; background: white; color: #333; }
 
-/* --- Specific Sections --- */
-
-/* Welcome */
+/* --- Sections --- */
 .welcome-text h2 { margin: 0; font-size: 1.5rem; }
 .subtitle { margin: 4px 0 0 0; color: #64748b; font-size: 0.95rem; font-weight: 500;}
-.area-welcome {
-  flex-direction: row; justify-content: space-between; align-items: center;
-}
-.streak-badge {
-  text-align: right; background: #f8fafc; padding: 8px 16px; border-radius: 12px;
-}
+.area-welcome { flex-direction: row; justify-content: space-between; align-items: center; }
+.streak-badge { text-align: right; background: #f8fafc; padding: 8px 16px; border-radius: 12px; }
 .streak-num { font-weight: 800; color: var(--brand-orange); font-size: 1.4rem; line-height: 1;}
 .streak-lbl { font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 700;}
 
-/* Stats */
 .area-stats { align-items: center; justify-content: center; text-align: center; }
 .stat-icon { font-size: 2rem; margin-bottom: 5px; }
 .big-number { font-size: 2.8rem; font-weight: 800; color: var(--brand-dark-blue); line-height: 1; margin: 5px 0; }
 .stat-label { font-size: 0.8rem; text-transform: uppercase; color: #64748b; font-weight: 700; letter-spacing: 0.5px; }
 
-/* Log Activity */
 .input-group { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
 input {
   padding: 14px; border: 1px solid #e2e8f0; border-radius: 10px;
@@ -175,19 +179,17 @@ input:focus { border-color: var(--brand-bright-blue); }
 }
 .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
-.stopwatch-area { margin-top: 25px; border-top: 1px dashed #e2e8f0; padding-top: 25px; text-align: center;}
+.stopwatch-area { margin-top: 15px; padding-top: 15px; text-align: center;}
 .digital-clock { font-size: 2.2rem; font-weight: 800; color: var(--brand-dark-blue); font-feature-settings: "tnum"; display: block; margin-bottom: 15px;}
 .btn-secondary { background: transparent; border: 2px solid var(--brand-teal); color: var(--brand-teal); }
 .btn-secondary:hover { background: var(--brand-teal); color: white; }
 .error-msg { color: #ef4444; font-size: 0.8rem; text-align: center; min-height: 1.2em; margin-top: 10px; font-weight: 600;}
 
-/* Community */
 .community-header { display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center;}
 .progress-container { height: 16px; background: #e2e8f0; border-radius: 20px; overflow: hidden; position: relative;}
 .progress-bar { height: 100%; background: linear-gradient(90deg, var(--brand-bright-blue), var(--brand-teal)); width: 0%; transition: width 1s; }
-.pill-badge { background: var(--brand-light-blue); color: var(--brand-dark-blue); padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; }
 
-/* --- BINGO SUNS --- */
+/* --- BINGO --- */
 .card-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 .tiny-note { font-size: 0.8rem; color: #94a3b8; font-weight: 500;}
 
@@ -199,90 +201,61 @@ input:focus { border-color: var(--brand-bright-blue); }
 }
 
 #bingoBoard div {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  border-radius: 50%;
-  
-  /* Sun Gradient */
+  width: 100%; aspect-ratio: 1 / 1; border-radius: 50%;
   background: linear-gradient(135deg, var(--brand-yellow) 0%, var(--brand-orange) 100%);
   box-shadow: 0 4px 10px rgba(241, 143, 0, 0.3);
   border: 3px solid white;
-  
-  /* Text */
   color: white; font-weight: 800; font-size: 9px; 
   text-transform: uppercase; line-height: 1.1; text-align: center;
-  
   display: flex; align-items: center; justify-content: center;
-  padding: 4px; 
-  cursor: pointer; position: relative; overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  padding: 4px; cursor: pointer; position: relative; overflow: hidden;
+  transition: all 0.3s;
 }
 
-#bingoBoard div:hover {
-  transform: translateY(-5px) scale(1.1);
-  box-shadow: 0 10px 20px rgba(241, 143, 0, 0.5);
-  z-index: 10; border-color: white;
-}
+#bingoBoard div:hover { transform: translateY(-5px) scale(1.1); box-shadow: 0 10px 20px rgba(241, 143, 0, 0.5); z-index: 10; border-color: white; }
+#bingoBoard div.completed { background: linear-gradient(135deg, #81c784 0%, var(--brand-olive) 100%); box-shadow: 0 4px 10px rgba(67, 160, 71, 0.3); text-decoration: line-through; opacity: 0.9; }
+#bingoBoard div span { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; max-width: 100%; pointer-events: none; }
 
-#bingoBoard div.completed {
-  background: linear-gradient(135deg, #81c784 0%, var(--brand-olive) 100%);
-  box-shadow: 0 4px 10px rgba(67, 160, 71, 0.3);
-  text-decoration: line-through; opacity: 0.9;
-}
-
-/* Text limiter */
-#bingoBoard div span {
-  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
-  overflow: hidden; max-width: 100%; pointer-events: none;
-}
-
-/* --- LEADERBOARD (FIXED SCROLLING) --- */
-.area-leaderboard {
-  display: flex;
-  flex-direction: column;
-  /* We allow the card to be naturally sized, 
-     but the list inside will hit a limit */
-}
-
+/* --- LEADERBOARD --- */
 .leaderboard-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  
-  /* THE FIX: Rigid height limit */
-  /* This creates a window big enough for about 8 people.
-     Anything more triggers the scrollbar. */
-  max-height: 350px; 
-  overflow-y: auto;
-  
-  padding-right: 6px; /* Space so scrollbar doesn't overlap text */
+  /* Removed max-height and overflow to remove scrollbar */
 }
 
-/* Custom Scrollbar Styling */
-.leaderboard-list::-webkit-scrollbar { width: 6px; }
-.leaderboard-list::-webkit-scrollbar-track { background: transparent; }
-.leaderboard-list::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
-  border-radius: 10px;
+.leaderboard-item {
+  display: flex; justify-content: space-between; padding: 10px;
+  background: #f8fafc; border-radius: 8px; font-size: 0.9rem;
 }
-.leaderboard-list::-webkit-scrollbar-thumb:hover { background-color: var(--brand-med-blue); }
 
-.leaderboard-bar { 
-  display: flex; align-items: center; padding: 10px; 
-  background: #f8fafc; border-radius: 10px; border: 1px solid transparent;
-  flex-shrink: 0; 
+.leaderboard-item.is-me {
+  background: var(--brand-yellow);
+  color: #333;
+  font-weight: bold;
 }
-.leaderboard-bar:hover { border-color: #e2e8f0; background: white; }
 
-.leaderboard-profile {
-  width: 32px; height: 32px; border-radius: 50%; 
-  background: var(--brand-med-blue); color: white;
-  display: flex; align-items: center; justify-content: center; 
-  font-size: 12px; margin-right: 12px; font-weight: 700; flex-shrink: 0;
+.rank-divider {
+  text-align: center; font-size: 1.2rem; line-height: 0.5;
+  color: rgba(0,0,0,0.3); margin: 5px 0;
 }
-.leaderboard-label { font-size: 0.95rem; font-weight: 600; }
 
-/* Modal */
+.user-rank-row {
+  border: 2px solid var(--brand-yellow);
+}
+
+/* --- FOOTER --- */
+.site-footer {
+  text-align: center;
+  padding: 2rem 1rem;
+  font-size: 0.85rem;
+  color: #888;
+  margin-top: 2rem;
+}
+.site-footer a { color: inherit; text-decoration: none; transition: color 0.2s; }
+.site-footer a:hover { text-decoration: underline; color: #333; }
+
+/* --- MODALS --- */
 .modal-overlay {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 59, 100, 0.5);
   backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 999;
@@ -294,227 +267,41 @@ input:focus { border-color: var(--brand-bright-blue); }
 }
 .modal-content h3 { font-size: 1.5rem; margin-bottom: 10px; color: var(--brand-dark-blue); }
 .modal-content p { color: #64748b; margin-bottom: 25px; line-height: 1.5; font-size: 1rem; }
-
-.modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.modal-actions { display: flex; gap: 12px; justify-content: center; }
 .btn-outline { background: transparent; border: 2px solid #cbd5e1; color: #64748b; }
-.btn-outline:hover { border-color: var(--brand-dark-blue); color: var(--brand-dark-blue); }
-
-/* Confetti */
-#confettiCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
-
-/* ========= AUTOCOMPLETE DROPDOWN ========= */
-.autocomplete-wrapper {
-  position: relative;
-  flex: 2; /* Allows title input to be wider than minutes input */
-}
-
-/* The dropdown menu */
-.suggestions-list {
-  position: absolute;
-  top: 100%; /* Pushes it right below the input */
-  left: 0;
-  right: 0;
-  background: white;
-  border: 1px solid #ccc;
-  border-radius: 0 0 8px 8px; /* Rounded corners on bottom only */
-  max-height: 200px;
-  overflow-y: auto; /* Scroll if list is long */
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  z-index: 999; /* Floats above other cards */
-  box-shadow: 0 4px 6px rgba(0,0,0,0.15);
-}
-
-.suggestions-list.hidden {
-  display: none;
-}
-
-/* Individual items */
-.suggestions-list li {
-  padding: 10px 12px;
-  cursor: pointer;
-  border-bottom: 1px solid #eee;
-  color: #333;
-  font-size: 0.95rem;
-  background: white;
-}
-
-.suggestions-list li:last-child {
-  border-bottom: none;
-}
-
-.suggestions-list li:hover {
-  background-color: #e6f7ff; /* Light blue highlight on hover */
-  color: #000;
-}
-
-/* ========= BOOKSHELF & RATINGS ========= */
-
-/* 1. New Card Styles (White Backgrounds) */
-.accent-purple {
-  background: white;
-  border-top: 4px solid #ab47bc; /* Purple top border */
-  color: #333;
-}
-
-.accent-pink {
-  background: white;
-  border-top: 4px solid #ec407a; /* Pink top border */
-  color: #333;
-}
-
-/* 2. Scrollable List Container */
-.scrollable-list {
-  max-height: 250px;
-  overflow-y: auto;
-  margin-top: 10px;
-  padding-right: 5px; /* Space for scrollbar */
-}
-
-/* 3. Individual Book Rows (Grey bubbles) */
-.book-row {
-  background: #f4f6f8; /* Light grey instead of transparent */
-  margin-bottom: 8px;
-  padding: 10px;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  border: 1px solid #eee;
-}
-
-.book-title {
-  font-weight: 600;
-  font-size: 0.95rem;
-  color: #222;
-}
-
-/* 4. Star Rating System */
-.star-rating {
-  display: flex;
-  gap: 4px;
-}
-
-.star {
-  cursor: pointer;
-  font-size: 1.2rem;
-  color: #ddd; /* Light grey for unrated */
-  transition: color 0.2s, transform 0.1s;
-}
-
-.star.filled {
-  color: #ffc107; /* Gold */
-}
-
-.star:hover {
-  transform: scale(1.1);
-}
-
-/* 5. Top Rated List Styles */
-.top-book-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid #eee;
-}
-
-.top-book-row:last-child {
-  border-bottom: none;
-}
-
-.top-book-score {
-  font-weight: 700;
-  color: #d81b60; /* Pinkish red text */
-  background: #fce4ec; /* Light pink bubble */
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 0.85rem;
-}
-
-.empty-state {
-  color: #888;
-  font-style: italic;
-  text-align: center;
-  padding: 20px 0;
-}
-
-/* ========= FLOATING LANGUAGE TOGGLE (FIXED) ========= */
-.floating-lang-toggle {
-  position: fixed !important; /* Force fixed positioning */
-  bottom: 30px !important;    /* Force 30px from bottom */
-  right: 30px !important;     /* Force 30px from right */
-  top: auto !important;       /* Explicitly turn off 'top' positioning */
-  z-index: 9999 !important;   /* Ensure it sits on top of everything */
-  
-  background: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 50px;
-  padding: 12px 20px;
-  
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  
-  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-  cursor: pointer;
-  
-  font-family: 'Inter', sans-serif;
-  font-weight: 700;
-  font-size: 0.9rem;
-  color: #888;
-  
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.floating-lang-toggle:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-}
-
-.floating-lang-toggle .divider {
-  color: #ddd;
-  font-weight: 300;
-}
-
-.lang-opt {
-  transition: color 0.3s;
-}
-
-.lang-opt.active {
-  color: #000;
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-decoration-color: #ffd54f;
-}
 
 /* Username Modal Specifics */
-#usernameModal .modal-content {
-  text-align: center;
-  max-width: 400px;
-}
+#usernameModal .modal-content { max-width: 400px; }
+#usernameModal input { text-align: center; width: 100%; box-sizing: border-box; }
 
-#usernameModal input {
-  padding: 12px;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  font-size: 1rem;
-  text-align: center;
-  width: 100%;
-  box-sizing: border-box; /* Ensures padding doesn't widen the element */
+/* Autocomplete */
+.autocomplete-wrapper { position: relative; flex: 2; }
+.suggestions-list {
+  position: absolute; top: 100%; left: 0; right: 0;
+  background: white; border: 1px solid #ccc; border-radius: 0 0 8px 8px;
+  max-height: 200px; overflow-y: auto; list-style: none; padding: 0; margin: 0;
+  z-index: 999; box-shadow: 0 4px 6px rgba(0,0,0,0.15);
 }
+.suggestions-list li { padding: 10px 12px; cursor: pointer; border-bottom: 1px solid #eee; font-size: 0.95rem; }
+.suggestions-list li:hover { background-color: #e6f7ff; }
 
-#usernameModal input:focus {
-  border-color: var(--accent-blue);
-  outline: none;
-}
+/* Bookshelf */
+.scrollable-list { max-height: 250px; overflow-y: auto; margin-top: 10px; padding-right: 5px; }
+.book-row { background: #f4f6f8; margin-bottom: 8px; padding: 10px; border-radius: 8px; border: 1px solid #eee; display: flex; flex-direction: column; gap: 5px; }
+.book-title { font-weight: 600; font-size: 0.95rem; }
+.star-rating { display: flex; gap: 4px; }
+.star { cursor: pointer; font-size: 1.2rem; color: #ddd; }
+.star.filled { color: #ffc107; }
+.top-book-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
+.top-book-score { font-weight: 700; color: #d81b60; background: #fce4ec; padding: 2px 8px; border-radius: 12px; font-size: 0.85rem; }
+.empty-state { color: #888; font-style: italic; text-align: center; padding: 20px 0; }
 
-/* New: Specifically centers the button in this modal */
-#usernameModal .modal-actions {
-  display: flex;
-  justify-content: center; /* Centers horizontally */
-  align-items: center;
-  width: 100%;
-  margin-top: 15px;
+/* Confetti & Floating Toggle */
+#confettiCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
+.floating-lang-toggle {
+  position: fixed !important; bottom: 30px !important; right: 30px !important; top: auto !important; z-index: 9999 !important;
+  background: white; border: 1px solid #e0e0e0; border-radius: 50px; padding: 12px 20px;
+  display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); cursor: pointer;
+  font-weight: 700; font-size: 0.9rem; color: #888;
 }
+.lang-opt.active { color: #000; text-decoration: underline; text-decoration-color: #ffd54f; }
