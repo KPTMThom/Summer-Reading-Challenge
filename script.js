@@ -366,14 +366,24 @@ function renderLeaderboard(users) {
 }
 
 function renderProgressBar(total) {
-  const fill = document.getElementById('progressFill');
-  const text = document.getElementById('progressText');
   const goal = COMMUNITY_GOAL;
+  
+  // Calculate Percentage
+  const rawPercent = (total / goal) * 100;
+  const displayPercent = Math.min(rawPercent, 100); // Cap visual bar at 100%
+  const textPercent = rawPercent.toFixed(1); // Keep decimal for text
 
-  const percent = Math.min((total / goal) * 100, 100);
-  fill.style.width = `${percent}%`;
-  const percentText = ((total / goal) * 100).toFixed(1);
-  text.textContent = `${percentText}% ${t('goalText')}`;
+  // 1. Update the Bar Width
+  const fill = document.getElementById('progressFill');
+  if(fill) fill.style.width = `${displayPercent}%`;
+
+  // 2. Update Total Minutes Text (with commas)
+  const totalEl = document.getElementById('communityTotalDisplay');
+  if(totalEl) totalEl.textContent = total.toLocaleString(); 
+
+  // 3. Update Percentage Text
+  const percentEl = document.getElementById('communityPercentDisplay');
+  if(percentEl) percentEl.textContent = `${textPercent}%`;
 }
 
 /* ========= READING STREAK ========= */
