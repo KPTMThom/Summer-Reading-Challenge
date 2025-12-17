@@ -6,11 +6,12 @@
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
+
 <h2 id="status">Logging in...</h2>
 
 <script>
-// ✔ FIX: use window.supabase
-const supabase = window.supabase.createClient(
+/* ✅ Create client WITHOUT redeclaring `supabase` */
+const supabaseClient = window.supabase.createClient(
   "https://hfugnpqguidgosxyuioj.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhmdWducHFndWlkZ29zeHl1aW9qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0NjE3ODAsImV4cCI6MjA3ODAzNzc4MH0.eawP-KaZTXOAE_OSYeJR6Ds_c6aKsqOsXo_EGifgtrU"
 );
@@ -19,26 +20,27 @@ const status = document.getElementById("status");
 const params = new URLSearchParams(window.location.search);
 const code = params.get("code");
 
-// Validate QR code
+/* ✅ Validate QR code */
 if (!code || code.length !== 16) {
   status.textContent = "Invalid QR code.";
   throw new Error("Invalid or missing QR code");
 }
 
 (async () => {
-  // Look up user by QR code
-  const { data, error } = await supabase
+  /* ✅ Use supabaseClient */
+  const { data, error } = await supabaseClient
     .from("Userdetails")
     .select("UUID, user_name")
     .eq("UUID", code)
     .single();
 
   if (error || !data) {
+    console.error(error);
     status.textContent = "No user found for this QR code.";
     return;
   }
 
-  // Store UUID for dashboard
+  /* ✅ Store UUID for dashboard */
   sessionStorage.setItem("userId", data.UUID);
 
   status.textContent = "Login successful! Redirecting...";
@@ -48,5 +50,3 @@ if (!code || code.length !== 16) {
 
 </body>
 </html>
-
-
